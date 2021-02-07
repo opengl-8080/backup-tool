@@ -1,0 +1,21 @@
+plugins {
+    id "java"
+}
+
+sourceCompatibility = 11
+targetCompatibility = 11
+
+[compileJava, compileTestJava]*.options*.encoding = "UTF-8"
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation "org.junit.jupiter:junit-jupiter:5.7.0"
+    testImplementation "org.assertj:assertj-core:3.19.0"
+}
+
+test {
+    useJUnitPlatform()
+}
