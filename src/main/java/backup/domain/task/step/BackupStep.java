@@ -1,4 +1,4 @@
-package backup.domain;
+package backup.domain.task.step;
 
 public interface BackupStep {
 }

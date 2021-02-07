@@ -1,4 +1,4 @@
-package backup.domain;
+package backup.domain.task;
 
 public class BackupName {
 }

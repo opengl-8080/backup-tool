@@ -1,4 +1,4 @@
-package backup.domain;
+package backup.domain.file;
 
 public enum VisitResult {
 }
