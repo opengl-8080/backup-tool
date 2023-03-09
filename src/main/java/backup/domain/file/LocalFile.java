@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.security.DigestOutputStream;
 import java.security.MessageDigest;
@@ -44,7 +43,8 @@ public class LocalFile {
 
     public void copyTo(LocalFile destination) {
         try {
-            Files.copy(path, destination.path, StandardCopyOption.REPLACE_EXISTING);
+            destination.parent().createDirectories();
+            Files.copy(path, destination.path);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -73,6 +73,10 @@ public class LocalFile {
     }
 
     public boolean contentEquals(LocalFile other) {
+        if (!exists() || !other.exists()) {
+            return false;
+        }
+
         return Arrays.equals(hash(), other.hash());
     }
 

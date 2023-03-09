@@ -18,19 +18,29 @@ public class BackupService {
     }
 
     public void backup() {
+        backupUpdatedFiles();
+        backupRemovedFiles();
+    }
+
+    private void backupUpdatedFiles() {
         originDirectory.walk((originFile, relativePath) -> {
             final LocalFile destinationFile = destinationDirectory.resolveFile(relativePath);
-            destinationFile.parent().createDirectories();
 
-            if (destinationFile.exists() && !originFile.contentEquals(destinationFile)) {
+            if (originFile.contentEquals(destinationFile)) {
+                return;
+            }
+
+            if (destinationFile.exists()) {
                 rotate(destinationFile);
             }
 
             originFile.copyTo(destinationFile);
         });
+    }
 
+    private void backupRemovedFiles() {
         destinationDirectory.walk((destinationFile, relativePath) -> {
-            if (destinationFile.isLatest() && !originDirectory.resolveFile(relativePath).exists()) {
+            if (destinationFile.isLatest() && originDirectory.doesNotHave(relativePath)) {
                 rotate(destinationFile);
             }
         });

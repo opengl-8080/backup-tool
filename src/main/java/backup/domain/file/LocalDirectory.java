@@ -20,6 +20,9 @@ public class LocalDirectory {
     }
 
     public void createDirectories() {
+        if (Files.exists(path)) {
+            return;
+        }
         try {
             Files.createDirectories(path);
         } catch (IOException e) {
@@ -46,8 +49,8 @@ public class LocalDirectory {
         }
     }
 
-    public Path relativePath(LocalFile file) {
-        return path.relativize(file.path());
+    public boolean doesNotHave(Path relativePath) {
+        return !resolveFile(relativePath).exists();
     }
 
     @Override
