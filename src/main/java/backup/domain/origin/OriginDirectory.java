@@ -1,6 +1,7 @@
 package backup.domain.origin;
 
 import backup.domain.destination.DestinationDirectory;
+import backup.domain.file.LocalFile;
 
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
@@ -21,7 +22,7 @@ public class OriginDirectory {
                 @Override
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                     final Path relativePath = dir.relativize(file);
-                    destination.backupTo(file, relativePath);
+                    destination.backupTo(LocalFile.of(file), relativePath);
                     return FileVisitResult.CONTINUE;
                 }
             });
