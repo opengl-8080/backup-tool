@@ -12,8 +12,10 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 public class LocalFile {
+    private static final Pattern BACKUP_FILE_NAME_PATTERN = Pattern.compile("^.*#\\d{8}-\\d{9}$");
     private final Path path;
 
     public static LocalFile of(Path path) {
@@ -92,5 +94,20 @@ public class LocalFile {
         }
 
         return md.digest();
+    }
+
+    public Path path() {
+        return path;
+    }
+
+    public boolean isLatest() {
+        return !BACKUP_FILE_NAME_PATTERN.matcher(baseName()).matches();
+    }
+
+    @Override
+    public String toString() {
+        return "LocalFile{" +
+                "path=" + path +
+                '}';
     }
 }

@@ -1,4 +1,4 @@
-package backup.domain.origin;
+package backup.domain;
 
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;

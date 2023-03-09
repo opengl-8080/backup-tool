@@ -1,6 +1,6 @@
-package backup.domain.origin;
+package backup.domain;
 
-import backup.domain.destination.DestinationDirectory;
+import backup.domain.file.LocalDirectory;
 import backup.domain.time.DefaultSystemTimeProvider;
 import backup.domain.time.FixedSystemTimeProvider;
 import backup.domain.time.SystemTime;
@@ -10,13 +10,14 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class OriginDirectoryTest {
-
+class BackupServiceTest {
     @RegisterExtension
     TestFiles testFiles = new TestFiles();
 
-    final OriginDirectory origin = new OriginDirectory(testFiles.originDir());
-    final DestinationDirectory destination = new DestinationDirectory(testFiles.destinationDir());
+    final BackupService sut = new BackupService(
+        LocalDirectory.of(testFiles.originDir()),
+        LocalDirectory.of(testFiles.destinationDir())
+    );
 
     @AfterEach
     void tearDown() {
@@ -29,7 +30,7 @@ class OriginDirectoryTest {
         testFiles.newOriginFile("foo/test2.txt", "two");
         testFiles.newOriginFile("fizz/buzz/test3.txt", "three");
 
-        origin.backupTo(destination);
+        sut.backup();
 
         assertThat(testFiles.destinationFile("test1.txt")).hasContent("one");
         assertThat(testFiles.destinationFile("foo/test2.txt")).hasContent("two");
@@ -47,7 +48,7 @@ class OriginDirectoryTest {
 
         SystemTime.setProvider(FixedSystemTimeProvider.of("2023-03-09 11:22:33.444"));
 
-        origin.backupTo(destination);
+        sut.backup();
 
         assertThat(testFiles.destinationFile("test1.txt")).hasContent("one");
         assertThat(testFiles.destinationFile("foo/test2.txt")).hasContent("two");
@@ -70,7 +71,7 @@ class OriginDirectoryTest {
 
         SystemTime.setProvider(FixedSystemTimeProvider.of("2023-03-09 11:22:33.444"));
 
-        origin.backupTo(destination);
+        sut.backup();
 
         assertThat(testFiles.destinationFile("test1.txt")).hasContent("one");
         assertThat(testFiles.destinationFile("foo/test2.txt")).hasContent("two");
@@ -79,5 +80,32 @@ class OriginDirectoryTest {
         assertThat(testFiles.destinationFile("test1#20230309-112233444.txt")).hasContent("ONE");
         assertThat(testFiles.destinationFile("foo/test2#20230309-112233444.txt")).hasContent("TWO");
         assertThat(testFiles.destinationFile("fizz/buzz/test3#20230309-112233444.txt")).hasContent("THREE");
+    }
+
+    @Test
+    void コピー元が削除された場合() {
+        // remove test1.txt
+        // remove foo/test2.txt
+        testFiles.newOriginFile("foo/test3.txt", "three");
+        // remove bar
+
+        testFiles.newDestinationFile("test1.txt", "one");
+        testFiles.newDestinationFile("foo/test2.txt", "two");
+        testFiles.newDestinationFile("foo/test3.txt", "three");
+        testFiles.newDestinationFile("bar/test4.txt", "four");
+        testFiles.newDestinationFile("bar/fizz/test5.txt", "five");
+        testFiles.newDestinationFile("bar/buzz/test6.txt", "six");
+        testFiles.newDestinationFile("bar/buzz/test6#20220101-001122333.txt", "SIX");
+
+        SystemTime.setProvider(FixedSystemTimeProvider.of("2023-03-09 11:22:33.444"));
+
+        sut.backup();
+
+        assertThat(testFiles.destinationFile("test1#20230309-112233444.txt")).hasContent("one");
+        assertThat(testFiles.destinationFile("foo/test2#20230309-112233444.txt")).hasContent("two");
+        assertThat(testFiles.destinationFile("foo/test3#20230309-112233444.txt")).doesNotExist();
+        assertThat(testFiles.destinationFile("bar/test4#20230309-112233444.txt")).hasContent("four");
+        assertThat(testFiles.destinationFile("bar/fizz/test5#20230309-112233444.txt")).hasContent("five");
+        assertThat(testFiles.destinationFile("bar/buzz/test6#20230309-112233444.txt")).hasContent("six");
     }
 }

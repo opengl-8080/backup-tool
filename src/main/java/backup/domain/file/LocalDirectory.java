@@ -1,8 +1,11 @@
 package backup.domain.file;
 
 import java.io.IOException;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Objects;
 
 public class LocalDirectory {
@@ -26,5 +29,31 @@ public class LocalDirectory {
 
     public LocalFile resolveFile(Path filePath) {
         return LocalFile.of(path.resolve(filePath));
+    }
+
+    public void walk(DirectoryVisitor visitor) {
+        try {
+            Files.walkFileTree(path, new SimpleFileVisitor<>() {
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                    final Path relativePath = path.relativize(file);
+                    visitor.visit(LocalFile.of(file), relativePath);
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public Path relativePath(LocalFile file) {
+        return path.relativize(file.path());
+    }
+
+    @Override
+    public String toString() {
+        return "LocalDirectory{" +
+                "path=" + path +
+                '}';
     }
 }
