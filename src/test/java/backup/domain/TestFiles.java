@@ -19,6 +19,10 @@ public class TestFiles implements BeforeEachCallback {
 
     @Override
     public void beforeEach(ExtensionContext context) throws Exception {
+        reset();
+    }
+
+    public void reset() {
         rmDir(tempDir);
 
         mkdirs(originDir);

@@ -1,7 +1,11 @@
 package backup.domain.file;
 
+import backup.domain.measure.StopWatch;
+
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -42,11 +46,22 @@ public class LocalFile {
     }
 
     public void copyTo(LocalFile destination) {
+        final StopWatch stopWatch = StopWatch.start("copyTo");
         try {
             destination.parent().createDirectories();
+
+//            try (
+//                final InputStream input = new BufferedInputStream(Files.newInputStream(path, StandardOpenOption.READ));
+//                final BufferedOutputStream out = new BufferedOutputStream(Files.newOutputStream(destination.path));
+//            ) {
+//                input.transferTo(out);
+//            }
+
             Files.copy(path, destination.path);
         } catch (IOException e) {
             throw new RuntimeException(e);
+        } finally {
+            stopWatch.stop();
         }
     }
 
@@ -81,23 +96,28 @@ public class LocalFile {
     }
 
     private byte[] hash() {
-        final MessageDigest md;
+        final StopWatch stopWatch = StopWatch.start("hash");
         try {
-            md = MessageDigest.getInstance("SHA-1");
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
+            final MessageDigest md;
+            try {
+                md = MessageDigest.getInstance("SHA-1");
+            } catch (NoSuchAlgorithmException e) {
+                throw new RuntimeException(e);
+            }
 
-        try (
-            final BufferedInputStream in = new BufferedInputStream(Files.newInputStream(path, StandardOpenOption.READ));
-            final DigestOutputStream out = new DigestOutputStream(OutputStream.nullOutputStream(), md)
-        ) {
-            in.transferTo(out);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+            try (
+                    final BufferedInputStream in = new BufferedInputStream(Files.newInputStream(path, StandardOpenOption.READ));
+                    final DigestOutputStream out = new DigestOutputStream(OutputStream.nullOutputStream(), md)
+            ) {
+                in.transferTo(out);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
 
-        return md.digest();
+            return md.digest();
+        } finally {
+            stopWatch.stop();
+        }
     }
 
     public Path path() {

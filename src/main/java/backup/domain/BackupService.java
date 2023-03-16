@@ -2,6 +2,7 @@ package backup.domain;
 
 import backup.domain.file.LocalDirectory;
 import backup.domain.file.LocalFile;
+import backup.domain.measure.StopWatch;
 import backup.domain.time.SystemTime;
 
 import java.time.format.DateTimeFormatter;
@@ -18,12 +19,16 @@ public class BackupService {
     }
 
     public void backup() {
+        final StopWatch backup = StopWatch.start("backup");
         backupUpdatedFiles();
         backupRemovedFiles();
+        backup.stop();
     }
 
     private void backupUpdatedFiles() {
+        final StopWatch stopWatch = StopWatch.start("backupUpdatedFiles");
         originDirectory.walk((originFile, relativePath) -> {
+            final StopWatch stopWatch2 = StopWatch.start("before copyTo");
             final LocalFile destinationFile = destinationDirectory.resolveFile(relativePath);
 
             if (originFile.contentEquals(destinationFile)) {
@@ -34,16 +39,20 @@ public class BackupService {
                 rotate(destinationFile);
             }
 
+            stopWatch2.stop();
             originFile.copyTo(destinationFile);
         });
+        stopWatch.stop();
     }
 
     private void backupRemovedFiles() {
+        final StopWatch stopWatch = StopWatch.start("backupRemovedFiles");
         destinationDirectory.walk((destinationFile, relativePath) -> {
             if (destinationFile.isLatest() && originDirectory.doesNotHave(relativePath)) {
                 rotate(destinationFile);
             }
         });
+        stopWatch.stop();
     }
 
     private void rotate(LocalFile destinationFile) {
