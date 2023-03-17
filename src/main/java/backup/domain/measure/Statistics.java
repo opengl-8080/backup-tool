@@ -24,7 +24,8 @@ public class Statistics {
         count++;
     }
 
-    public void print() {
+    public void print(String context) {
+        System.out.println("=== " + context + " ===");
         for (Map.Entry<String, Long> entry : times.entrySet()) {
             final String tag = entry.getKey();
             final long sum = entry.getValue();

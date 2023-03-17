@@ -32,32 +32,42 @@ public class BackupPlanner {
     }
 
     private List<BackupPlan> analyseUpdatedFiles() {
-        List<BackupPlan> plans = new ArrayList<>();
+        final StopWatch stopWatch = StopWatch.start("analyseUpdatedFiles");
+        try {
+            List<BackupPlan> plans = new ArrayList<>();
 
-        originDirectory.walk((originFile, relativePath) -> {
-            final LocalFile destinationFile = destinationDirectory.resolveFile(relativePath);
+            originDirectory.walk((originFile, relativePath) -> {
+                final LocalFile destinationFile = destinationDirectory.resolveFile(relativePath);
 
-            if (!destinationFile.exists()) {
-                plans.add(new BackupPlan(Operation.ADD, relativePath));
-            } else if (!originFile.contentEquals(destinationFile)) {
-                plans.add(new BackupPlan(Operation.UPDATE, relativePath));
-            }
-        });
+                if (!destinationFile.exists()) {
+                    plans.add(new BackupPlan(Operation.ADD, relativePath));
+                } else if (!originFile.contentEquals(destinationFile)) {
+                    plans.add(new BackupPlan(Operation.UPDATE, relativePath));
+                }
+            });
 
-        return plans;
+            return plans;
+        } finally {
+            stopWatch.stop();
+        }
     }
 
     private List<BackupPlan> analyseRemovedFiles() {
-        List<BackupPlan> plans = new ArrayList<>();
+        final StopWatch stopWatch = StopWatch.start("analyseRemovedFiles");
+        try {
+            List<BackupPlan> plans = new ArrayList<>();
 
-        destinationDirectory.walk((destinationFile, relativePath) -> {
-            final LocalFile originFile = originDirectory.resolveFile(relativePath);
+            destinationDirectory.walk((destinationFile, relativePath) -> {
+                final LocalFile originFile = originDirectory.resolveFile(relativePath);
 
-            if (!originFile.exists()) {
-                plans.add(new BackupPlan(Operation.REMOVE, relativePath));
-            }
-        });
+                if (!originFile.exists()) {
+                    plans.add(new BackupPlan(Operation.REMOVE, relativePath));
+                }
+            });
 
-        return plans;
+            return plans;
+        } finally {
+            stopWatch.stop();
+        }
     }
 }

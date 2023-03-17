@@ -42,24 +42,27 @@ public class PerformanceTest {
 
         System.out.println("measuring...");
         StopWatch.enable();
-        Statistics statistics = new Statistics();
+        Statistics firstStatistics = new Statistics();
+        Statistics secondStatistics = new Statistics();
         for (int i=0; i<5; i++) {
             System.out.println(i);
 
             PerformanceTestUtil.createDirectory(originDir, 3, 5, 3, FILE_SIZE);
 
-            final StopWatch stopWatch = StopWatch.start("total");
             sut.backup();
-            modifyOriginDirectoryFiles();
-            sut.backup();
-            stopWatch.stop();
-
-            statistics.add(StopWatch.dumpStatistics());
-
+            firstStatistics.add(StopWatch.dumpStatistics());
             StopWatch.reset();
+
+            modifyOriginDirectoryFiles();
+
+            sut.backup();
+            secondStatistics.add(StopWatch.dumpStatistics());
+            StopWatch.reset();
+
             testFiles.reset();
         }
-        statistics.print();
+        firstStatistics.print("first");
+        secondStatistics.print("second");
     }
 
     private void modifyOriginDirectoryFiles() throws IOException {
