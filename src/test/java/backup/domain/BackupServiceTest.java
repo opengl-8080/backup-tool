@@ -101,11 +101,21 @@ class BackupServiceTest {
 
         sut.backup();
 
+        assertThat(testFiles.destinationFile("test1.txt")).doesNotExist();
         assertThat(testFiles.destinationFile("test1#20230309-112233444.txt")).hasContent("one");
+
+        assertThat(testFiles.destinationFile("foo/test2.txt")).doesNotExist();
         assertThat(testFiles.destinationFile("foo/test2#20230309-112233444.txt")).hasContent("two");
+
         assertThat(testFiles.destinationFile("foo/test3#20230309-112233444.txt")).doesNotExist();
+
+        assertThat(testFiles.destinationFile("bar/test4.txt")).doesNotExist();
         assertThat(testFiles.destinationFile("bar/test4#20230309-112233444.txt")).hasContent("four");
+
+        assertThat(testFiles.destinationFile("bar/fizz/test5.txt")).doesNotExist();
         assertThat(testFiles.destinationFile("bar/fizz/test5#20230309-112233444.txt")).hasContent("five");
+        assertThat(testFiles.destinationFile("bar/buzz/test6.txt")).doesNotExist();
         assertThat(testFiles.destinationFile("bar/buzz/test6#20230309-112233444.txt")).hasContent("six");
+        assertThat(testFiles.destinationFile("bar/buzz/test6#20220101-001122333.txt")).hasContent("SIX");
     }
 }

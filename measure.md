@@ -2,36 +2,36 @@
 
 ```
 === first ===
-copyTo	410.74
-backup	417.28
-analyseRemovedFiles	0.06
-analyseUpdatedFiles	6.36
-plan	6.42
+copyTo	577.54
+backup	584.46
+analyseRemovedFiles	0.10
+analyseUpdatedFiles	6.40
+plan	6.50
 === second ===
-copyTo	161.32
-backup	624.78
-analyseRemovedFiles	5.08
-analyseUpdatedFiles	438.14
-plan	443.26
-hash	111.10
-moveTo	19.04
+copyTo	268.26
+backup	1160.18
+analyseRemovedFiles	5.64
+analyseUpdatedFiles	860.02
+plan	865.70
+hash	518.82
+moveTo	24.74
 ```
 
 # サイズ判定追加
 
 ```
 === first ===
-copyTo	407.22
-backup	414.22
-analyseRemovedFiles	0.06
-analyseUpdatedFiles	6.52
-plan	6.62
+copyTo	559.46
+backup	566.18
+analyseRemovedFiles	0.10
+analyseUpdatedFiles	6.26
+plan	6.38
 === second ===
-copyTo	163.04
-backup	565.98
-analyseRemovedFiles	5.14
-analyseUpdatedFiles	376.82
-plan	381.96
-hash	55.92
-moveTo	19.96
+copyTo	269.02
+backup	942.88
+analyseRemovedFiles	28.70
+analyseUpdatedFiles	612.04
+plan	640.82
+hash	259.48
+moveTo	31.60
 ```

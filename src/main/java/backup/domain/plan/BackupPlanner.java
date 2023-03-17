@@ -58,6 +58,10 @@ public class BackupPlanner {
             List<BackupPlan> plans = new ArrayList<>();
 
             destinationDirectory.walk((destinationFile, relativePath) -> {
+                if (!destinationFile.isLatest()) {
+                    return;
+                }
+
                 final LocalFile originFile = originDirectory.resolveFile(relativePath);
 
                 if (!originFile.exists()) {

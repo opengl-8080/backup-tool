@@ -16,7 +16,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
 
 public class PerformanceTest {
-    static final int FILE_SIZE = 1024 * 1024;
+    static final int FILE_SIZE = 1024 * 1024 * 5;
     @RegisterExtension
     final TestFiles testFiles = new TestFiles();
 
