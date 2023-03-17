@@ -13,6 +13,7 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 
 public class PerformanceTest {
@@ -44,6 +45,7 @@ public class PerformanceTest {
         StopWatch.enable();
         Statistics firstStatistics = new Statistics();
         Statistics secondStatistics = new Statistics();
+        Statistics thirdStatistics = new Statistics();
         for (int i=0; i<50; i++) {
             System.out.println(i);
 
@@ -59,10 +61,17 @@ public class PerformanceTest {
             secondStatistics.add(StopWatch.dumpStatistics());
             StopWatch.reset();
 
+            modifyOriginDirectoryFiles();
+
+            sut.backup();
+            thirdStatistics.add(StopWatch.dumpStatistics());
+            StopWatch.reset();
+
             testFiles.reset();
         }
         firstStatistics.print("first");
         secondStatistics.print("second");
+        thirdStatistics.print("third");
     }
 
     private void modifyOriginDirectoryFiles() throws IOException {
@@ -72,7 +81,7 @@ public class PerformanceTest {
                 final String fileName = file.getFileName().toString();
                 if (fileName.contains("001")) {
                     Files.write(file, new byte[] {1, 2, 3}, StandardOpenOption.APPEND);
-                } else if (fileName.contains("002")) {
+                } else if (fileName.contains("002") || fileName.startsWith("newFile")) {
                     Files.delete(file);
                 }
 
@@ -81,7 +90,7 @@ public class PerformanceTest {
 
             @Override
             public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-                final Path file = dir.resolve("newFile.txt");
+                final Path file = dir.resolve("newFile" + System.currentTimeMillis() + ".txt");
                 final byte[] content = new byte[FILE_SIZE];
                 Arrays.fill(content, (byte)0);
                 Files.write(file, content);
