@@ -87,6 +87,10 @@ public class LocalFile {
             return false;
         }
 
+        if (size() != other.size()) {
+            return false;
+        }
+
         return Arrays.equals(hash(), other.hash());
     }
 
@@ -121,6 +125,10 @@ public class LocalFile {
 
     public boolean isLatest() {
         return !BACKUP_FILE_NAME_PATTERN.matcher(baseName()).matches();
+    }
+
+    private long size() {
+        return path.toFile().length();
     }
 
     @Override

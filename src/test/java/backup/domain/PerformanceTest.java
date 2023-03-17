@@ -16,7 +16,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
 
 public class PerformanceTest {
-    static final int FILE_SIZE = 1024 * 1024 * 5;
+    static final int FILE_SIZE = 1024 * 1024;
     @RegisterExtension
     final TestFiles testFiles = new TestFiles();
 
@@ -44,10 +44,10 @@ public class PerformanceTest {
         StopWatch.enable();
         Statistics firstStatistics = new Statistics();
         Statistics secondStatistics = new Statistics();
-        for (int i=0; i<5; i++) {
+        for (int i=0; i<50; i++) {
             System.out.println(i);
 
-            PerformanceTestUtil.createDirectory(originDir, 3, 5, 3, FILE_SIZE);
+            PerformanceTestUtil.createDirectory(originDir, 2, 4, 3, FILE_SIZE);
 
             sut.backup();
             firstStatistics.add(StopWatch.dumpStatistics());
