@@ -1,5 +1,6 @@
 package backup.domain.plan;
 
+import backup.domain.file.CachedLocalFile;
 import backup.domain.file.LocalDirectory;
 import backup.domain.file.LocalFile;
 import backup.domain.measure.StopWatch;
@@ -37,7 +38,7 @@ public class BackupPlanner {
 
                 if (!destinationFile.exists()) {
                     plans.add(new BackupPlan(Operation.ADD, relativePath));
-                } else if (!originFile.contentEquals(destinationFile)) {
+                } else if (!originFile.contentEquals(new CachedLocalFile(destinationFile))) {
                     plans.add(new BackupPlan(Operation.UPDATE, relativePath));
                 }
             });

@@ -1,10 +1,12 @@
 package backup.domain;
 
+import backup.domain.cache.DestinationCacheDatabase;
 import backup.domain.file.LocalDirectory;
 import backup.domain.time.DefaultSystemTimeProvider;
 import backup.domain.time.FixedSystemTimeProvider;
 import backup.domain.time.SystemTime;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -18,6 +20,11 @@ class BackupServiceTest {
         LocalDirectory.of(testFiles.originDir()),
         LocalDirectory.of(testFiles.destinationDir())
     );
+
+    @BeforeEach
+    void setUp() {
+        DestinationCacheDatabase.getInstance().reset();
+    }
 
     @AfterEach
     void tearDown() {

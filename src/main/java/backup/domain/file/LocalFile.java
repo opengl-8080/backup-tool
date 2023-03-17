@@ -82,7 +82,7 @@ public class LocalFile {
         return Arrays.equals(hash(), other.hash());
     }
 
-    private byte[] hash() {
+    protected byte[] hash() {
         return StopWatch.measure("hash", () -> {
             final MessageDigest md;
             try {

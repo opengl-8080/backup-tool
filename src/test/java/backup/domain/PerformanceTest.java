@@ -1,5 +1,6 @@
 package backup.domain;
 
+import backup.domain.cache.DestinationCacheDatabase;
 import backup.domain.file.LocalDirectory;
 import backup.domain.measure.Statistics;
 import backup.domain.measure.StopWatch;
@@ -38,6 +39,7 @@ public class PerformanceTest {
             PerformanceTestUtil.createDirectory(originDir, 3, 5, 3, 1024);
             sut.backup();
 
+            DestinationCacheDatabase.getInstance().reset();
             testFiles.reset();
         }
 
@@ -67,6 +69,7 @@ public class PerformanceTest {
             thirdStatistics.add(StopWatch.dumpStatistics());
             StopWatch.reset();
 
+            DestinationCacheDatabase.getInstance().reset();
             testFiles.reset();
         }
         firstStatistics.print("first");
