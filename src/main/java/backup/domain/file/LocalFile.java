@@ -38,10 +38,13 @@ public class LocalFile {
     }
 
     public void moveTo(LocalFile destination) {
+        final StopWatch stopWatch = StopWatch.start("moveTo");
         try {
             Files.move(path, destination.path);
         } catch (IOException e) {
             throw new RuntimeException(e);
+        } finally {
+            stopWatch.stop();
         }
     }
 
@@ -49,14 +52,6 @@ public class LocalFile {
         final StopWatch stopWatch = StopWatch.start("copyTo");
         try {
             destination.parent().createDirectories();
-
-//            try (
-//                final InputStream input = new BufferedInputStream(Files.newInputStream(path, StandardOpenOption.READ));
-//                final BufferedOutputStream out = new BufferedOutputStream(Files.newOutputStream(destination.path));
-//            ) {
-//                input.transferTo(out);
-//            }
-
             Files.copy(path, destination.path);
         } catch (IOException e) {
             throw new RuntimeException(e);

@@ -3,13 +3,13 @@ package backup.domain;
 import backup.domain.file.LocalDirectory;
 import backup.domain.file.LocalFile;
 import backup.domain.measure.StopWatch;
-import backup.domain.time.SystemTime;
+import backup.domain.plan.BackupPlan;
+import backup.domain.plan.BackupPlanner;
+import backup.domain.plan.BackupPlans;
 
-import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 public class BackupService {
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("uuuuMMdd-HHmmssSSS");
     private final LocalDirectory originDirectory;
     private final LocalDirectory destinationDirectory;
 
@@ -20,46 +20,17 @@ public class BackupService {
 
     public void backup() {
         final StopWatch backup = StopWatch.start("backup");
-        backupUpdatedFiles();
-        backupRemovedFiles();
+
+        final BackupPlanner planner = new BackupPlanner(originDirectory, destinationDirectory);
+        final BackupPlans plans = planner.plan();
+
+        for (BackupPlan plan : plans) {
+            final LocalFile originFile = originDirectory.resolveFile(plan.path());
+            final LocalFile destinationFile = destinationDirectory.resolveFile(plan.path());
+
+            plan.operation().execute(originFile, destinationFile);
+        }
+
         backup.stop();
-    }
-
-    private void backupUpdatedFiles() {
-        final StopWatch stopWatch = StopWatch.start("backupUpdatedFiles");
-        originDirectory.walk((originFile, relativePath) -> {
-            final StopWatch stopWatch2 = StopWatch.start("before copyTo");
-            final LocalFile destinationFile = destinationDirectory.resolveFile(relativePath);
-
-            if (originFile.contentEquals(destinationFile)) {
-                return;
-            }
-
-            if (destinationFile.exists()) {
-                rotate(destinationFile);
-            }
-
-            stopWatch2.stop();
-            originFile.copyTo(destinationFile);
-        });
-        stopWatch.stop();
-    }
-
-    private void backupRemovedFiles() {
-        final StopWatch stopWatch = StopWatch.start("backupRemovedFiles");
-        destinationDirectory.walk((destinationFile, relativePath) -> {
-            if (destinationFile.isLatest() && originDirectory.doesNotHave(relativePath)) {
-                rotate(destinationFile);
-            }
-        });
-        stopWatch.stop();
-    }
-
-    private void rotate(LocalFile destinationFile) {
-        final String baseName = destinationFile.baseName();
-        final String extension = destinationFile.extension();
-        final String rotatedFileName = baseName + "#" + FORMATTER.format(SystemTime.now()) + extension;
-        final LocalFile rotatedFile = destinationFile.sibling(rotatedFileName);
-        destinationFile.moveTo(rotatedFile);
     }
 }
