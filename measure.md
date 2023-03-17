@@ -1,53 +1,38 @@
-# 初期
+# first
 
-```
-=== first ===
-copyTo	583.28
-backup	589.96
-analyseRemovedFiles	0.08
-analyseUpdatedFiles	6.32
-plan	6.46
-=== second ===
-copyTo	269.22
-backup	1143.78
-analyseRemovedFiles	4.92
-analyseUpdatedFiles	849.58
-plan	854.54
-hash	514.92
-moveTo	18.98
-=== third ===
-copyTo	256.40
-backup	1002.62
-analyseRemovedFiles	4.72
-analyseUpdatedFiles	723.20
-plan	727.96
-hash	495.40
-moveTo	17.30
-```
+| tag                 |   Begin |    Size |  Exists |
+|---------------------|--------:|--------:|--------:|
+| copyTo              |  583.28 |  557.82 |  571.54 |
+| backup              |  589.96 |  564.86 |  575.04 |
+| exist               |       - |    4.86 |    1.56 |
+| analyseRemovedFiles |    0.08 |    0.02 |    0.02 |
+| analyseUpdatedFiles |    6.32 |    6.82 |    3.22 |
+| plan                |    6.46 |    6.84 |    3.24 |
 
-# サイズ判定追加
+# second
 
-```
-=== first ===
-copyTo	568.94
-backup	575.60
-analyseRemovedFiles	0.04
-analyseUpdatedFiles	6.26
-plan	6.32
-=== second ===
-copyTo	273.70
-backup	891.74
-analyseRemovedFiles	7.38
-analyseUpdatedFiles	589.26
-plan	596.66
-hash	258.48
-moveTo	20.32
-=== third ===
-copyTo	258.54
-backup	760.64
-analyseRemovedFiles	4.64
-analyseUpdatedFiles	476.94
-plan	481.60
-hash	253.04
-moveTo	19.44
-```
+| tag                 |    Begin |     Size |  Exists |
+|---------------------|---------:|---------:|--------:|
+| copyTo              |   269.22 |   268.00 |  403.46 |
+| backup              |  1143.78 |   880.38 |  834.92 |
+| size                |        - |     3.74 |    2.22 |
+| exists              |        - |   321.98 |   21.94 |
+| analyseRemovedFiles |     4.92 |     8.26 |    7.40 |
+| analyseUpdatedFiles |   849.58 |   581.02 |  401.30 |
+| plan                |   854.54 |   589.28 |  408.76 |
+| hash                |   514.92 |   258.66 |  380.06 |
+| moveTo              |    18.98 |    21.80 |   21.46 |
+
+# third
+
+| tag                 |    Begin |     Size |   Exists |
+|---------------------|---------:|---------:|---------:|
+| copyTo              |   256.40 |   255.94 |   379.74 |
+| backup              |  1002.62 |   754.28 |   649.72 |
+| size                |        - |     3.68 |     2.36 |
+| exists              |        - |   216.80 |     6.76 |
+| analyseRemovedFiles |     4.72 |     4.56 |     3.28 |
+| analyseUpdatedFiles |   723.20 |   473.92 |   246.26 |
+| plan                |   727.96 |   478.50 |   249.62 |
+| hash                |   495.40 |   253.58 |   236.68 |
+| moveTo              |    17.30 |    18.80 |    19.06 |

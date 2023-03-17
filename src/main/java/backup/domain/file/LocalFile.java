@@ -3,9 +3,7 @@ package backup.domain.file;
 import backup.domain.measure.StopWatch;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -34,30 +32,20 @@ public class LocalFile {
     }
 
     public boolean exists() {
-        return Files.exists(path);
+        return StopWatch.measure("exists", () -> path.toFile().exists());
     }
 
     public void moveTo(LocalFile destination) {
-        final StopWatch stopWatch = StopWatch.start("moveTo");
-        try {
+        StopWatch.measure("moveTo", () -> {
             Files.move(path, destination.path);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } finally {
-            stopWatch.stop();
-        }
+        });
     }
 
     public void copyTo(LocalFile destination) {
-        final StopWatch stopWatch = StopWatch.start("copyTo");
-        try {
+        StopWatch.measure("copyTo", () -> {
             destination.parent().createDirectories();
             Files.copy(path, destination.path);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } finally {
-            stopWatch.stop();
-        }
+        });
     }
 
     public LocalFile sibling(String fileName) {
@@ -95,8 +83,7 @@ public class LocalFile {
     }
 
     private byte[] hash() {
-        final StopWatch stopWatch = StopWatch.start("hash");
-        try {
+        return StopWatch.measure("hash", () -> {
             final MessageDigest md;
             try {
                 md = MessageDigest.getInstance("SHA-1");
@@ -105,8 +92,8 @@ public class LocalFile {
             }
 
             try (
-                    final BufferedInputStream in = new BufferedInputStream(Files.newInputStream(path, StandardOpenOption.READ));
-                    final DigestOutputStream out = new DigestOutputStream(OutputStream.nullOutputStream(), md)
+                final BufferedInputStream in = new BufferedInputStream(Files.newInputStream(path, StandardOpenOption.READ));
+                final DigestOutputStream out = new DigestOutputStream(OutputStream.nullOutputStream(), md)
             ) {
                 in.transferTo(out);
             } catch (IOException e) {
@@ -114,9 +101,7 @@ public class LocalFile {
             }
 
             return md.digest();
-        } finally {
-            stopWatch.stop();
-        }
+        });
     }
 
     public Path path() {
@@ -128,7 +113,7 @@ public class LocalFile {
     }
 
     private long size() {
-        return path.toFile().length();
+        return StopWatch.measure("size", () -> path.toFile().length());
     }
 
     @Override

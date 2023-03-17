@@ -18,22 +18,18 @@ public class BackupPlanner {
     }
 
     public BackupPlans plan() {
-        final StopWatch stopWatch = StopWatch.start("plan");
-        try {
+        return StopWatch.measure("plan", () -> {
             List<BackupPlan> plans = new ArrayList<>();
 
             plans.addAll(analyseUpdatedFiles());
             plans.addAll(analyseRemovedFiles());
 
             return new BackupPlans(plans);
-        } finally {
-            stopWatch.stop();
-        }
+        });
     }
 
     private List<BackupPlan> analyseUpdatedFiles() {
-        final StopWatch stopWatch = StopWatch.start("analyseUpdatedFiles");
-        try {
+        return StopWatch.measure("analyseUpdatedFiles", () -> {
             List<BackupPlan> plans = new ArrayList<>();
 
             originDirectory.walk((originFile, relativePath) -> {
@@ -47,14 +43,11 @@ public class BackupPlanner {
             });
 
             return plans;
-        } finally {
-            stopWatch.stop();
-        }
+        });
     }
 
     private List<BackupPlan> analyseRemovedFiles() {
-        final StopWatch stopWatch = StopWatch.start("analyseRemovedFiles");
-        try {
+        return StopWatch.measure("analyseRemovedFiles", () -> {
             List<BackupPlan> plans = new ArrayList<>();
 
             destinationDirectory.walk((destinationFile, relativePath) -> {
@@ -70,8 +63,6 @@ public class BackupPlanner {
             });
 
             return plans;
-        } finally {
-            stopWatch.stop();
-        }
+        });
     }
 }

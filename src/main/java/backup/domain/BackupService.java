@@ -19,18 +19,16 @@ public class BackupService {
     }
 
     public void backup() {
-        final StopWatch backup = StopWatch.start("backup");
+        StopWatch.measure("backup", () -> {
+            final BackupPlanner planner = new BackupPlanner(originDirectory, destinationDirectory);
+            final BackupPlans plans = planner.plan();
 
-        final BackupPlanner planner = new BackupPlanner(originDirectory, destinationDirectory);
-        final BackupPlans plans = planner.plan();
+            for (BackupPlan plan : plans) {
+                final LocalFile originFile = originDirectory.resolveFile(plan.path());
+                final LocalFile destinationFile = destinationDirectory.resolveFile(plan.path());
 
-        for (BackupPlan plan : plans) {
-            final LocalFile originFile = originDirectory.resolveFile(plan.path());
-            final LocalFile destinationFile = destinationDirectory.resolveFile(plan.path());
-
-            plan.operation().execute(originFile, destinationFile);
-        }
-
-        backup.stop();
+                plan.operation().execute(originFile, destinationFile);
+            }
+        });
     }
 }

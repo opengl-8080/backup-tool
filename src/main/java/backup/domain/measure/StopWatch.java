@@ -31,8 +31,22 @@ public class StopWatch {
     private final long begin = System.currentTimeMillis();
     private final String tag;
 
-    public static StopWatch start(String tag) {
-        return new StopWatch(tag);
+    public static <T> T measure(String tag, Invoker<T> invoker) {
+        final StopWatch stopWatch = new StopWatch(tag);
+        try {
+            return invoker.invoke();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        } finally {
+            stopWatch.stop();
+        }
+    }
+
+    public static void measure(String tag, NoReturnInvoker invoker) {
+        measure(tag, () -> {
+            invoker.invoke();
+            return null;
+        });
     }
 
     private StopWatch(String tag) {
@@ -45,5 +59,13 @@ public class StopWatch {
         }
         final long time = System.currentTimeMillis() - begin;
         TIMES.computeIfAbsent(tag, (key) -> new AtomicLong(0L)).getAndAdd(time);
+    }
+
+    public interface Invoker<T> {
+        T invoke() throws Exception;
+    }
+
+    public interface NoReturnInvoker {
+        void invoke() throws Exception;
     }
 }
