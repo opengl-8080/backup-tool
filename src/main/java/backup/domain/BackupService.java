@@ -25,7 +25,9 @@ public class BackupService {
 
     public void backup() {
         StopWatch.measure("backup", () -> {
-            Logger.getInstance().info("Start Backup...");
+            Logger.getInstance().info("Start Backup (origin=%s, destination=%s)".formatted(
+                originDirectory.path(), destinationDirectory.path()
+            ));
 
             DestinationCacheDatabase.getInstance().restoreFromFile();
 
@@ -42,7 +44,8 @@ public class BackupService {
             DestinationCacheDatabase.getInstance().saveToFile();
 
             Logger.getInstance()
-                .info("Backup finished (add=%d, update=%d, remove=%d).".formatted(
+                .info("Backup finished (origin=%s, destination=%s, add=%d, update=%d, remove=%d).".formatted(
+                    originDirectory.path(), destinationDirectory.path(),
                     plans.addCount(), plans.updateCount(), plans.removeCount()
                 ));
         });

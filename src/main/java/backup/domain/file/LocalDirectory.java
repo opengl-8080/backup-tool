@@ -49,8 +49,8 @@ public class LocalDirectory {
         }
     }
 
-    public boolean doesNotHave(Path relativePath) {
-        return !resolveFile(relativePath).exists();
+    public Path path() {
+        return path;
     }
 
     @Override
