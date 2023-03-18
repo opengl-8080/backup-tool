@@ -28,6 +28,10 @@ public class BackupPlans implements Iterable<BackupPlan> {
         return count(Operation.REMOVE);
     }
 
+    public int totalCount() {
+        return plans.size();
+    }
+
     private int count(Operation operation) {
         return ((int) plans.stream().filter(plan -> plan.operation() == operation).count());
     }
