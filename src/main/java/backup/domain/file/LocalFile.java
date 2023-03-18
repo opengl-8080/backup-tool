@@ -16,6 +16,7 @@ import java.util.Objects;
 import java.util.regex.Pattern;
 
 public class LocalFile {
+    private static final int INPUT_BUFFER_SIZE = 1024 * 1024;
     private static final Pattern BACKUP_FILE_NAME_PATTERN = Pattern.compile("^.*#\\d{8}-\\d{9}$");
     private final Path path;
 
@@ -92,10 +93,14 @@ public class LocalFile {
             }
 
             try (
-                final BufferedInputStream in = new BufferedInputStream(Files.newInputStream(path, StandardOpenOption.READ));
+                final BufferedInputStream in = new BufferedInputStream(Files.newInputStream(path, StandardOpenOption.READ), INPUT_BUFFER_SIZE);
                 final DigestOutputStream out = new DigestOutputStream(OutputStream.nullOutputStream(), md)
             ) {
-                in.transferTo(out);
+                byte[] buffer = new byte[INPUT_BUFFER_SIZE];
+                int size;
+                while ((size = in.read(buffer)) != -1) {
+                    out.write(buffer, 0, size);
+                }
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
