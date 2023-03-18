@@ -32,6 +32,9 @@ public class PerformanceTest {
 
     @Test
     void test() throws Exception {
+        final Path dat = Path.of("./build/performance-test.dat");
+        DestinationCacheDatabase.getInstance().setPersistenceFile(dat);
+
         System.out.println("warm up");
         for (int i=0; i<5; i++) {
             System.out.println(i);
@@ -40,6 +43,7 @@ public class PerformanceTest {
             sut.backup();
 
             DestinationCacheDatabase.getInstance().reset();
+            Files.delete(dat);
             testFiles.reset();
         }
 
@@ -71,6 +75,7 @@ public class PerformanceTest {
 
             DestinationCacheDatabase.getInstance().reset();
             testFiles.reset();
+            Files.delete(dat);
         }
         firstStatistics.print("first");
         secondStatistics.print("second");

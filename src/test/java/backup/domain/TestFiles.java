@@ -37,19 +37,27 @@ public class TestFiles implements BeforeEachCallback {
         return destinationDir;
     }
 
-    public Path newOriginFile(String path, String content) {
+    public void removeOriginFile(String path) {
+        try {
+            Files.delete(originFile(path));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public Path writeOriginFile(String path, String content) {
         final Path file = originFile(path);
-        newFile(file, content);
+        writeFile(file, content);
         return file;
     }
 
-    public Path newDestinationFile(String path, String content) {
+    public Path writeDestinationFile(String path, String content) {
         final Path file = destinationFile(path);
-        newFile(file, content);
+        writeFile(file, content);
         return file;
     }
 
-    private void newFile(Path file, String content) {
+    private void writeFile(Path file, String content) {
         mkdirs(file.getParent());
         try {
             Files.writeString(file, content, StandardCharsets.UTF_8);
@@ -64,6 +72,10 @@ public class TestFiles implements BeforeEachCallback {
 
     public Path destinationFile(String path) {
         return destinationDir.resolve(path);
+    }
+
+    public Path destinationDir(String path) {
+        return destinationFile(path);
     }
 
     private void mkdirs(Path dir) {

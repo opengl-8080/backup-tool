@@ -1,5 +1,6 @@
 package backup.domain;
 
+import backup.domain.cache.DestinationCacheDatabase;
 import backup.domain.file.LocalDirectory;
 import backup.domain.file.LocalFile;
 import backup.domain.measure.StopWatch;
@@ -20,6 +21,8 @@ public class BackupService {
 
     public void backup() {
         StopWatch.measure("backup", () -> {
+            DestinationCacheDatabase.getInstance().restoreFromFile();
+
             final BackupPlanner planner = new BackupPlanner(originDirectory, destinationDirectory);
             final BackupPlans plans = planner.plan();
 
@@ -29,6 +32,8 @@ public class BackupService {
 
                 plan.operation().execute(originFile, destinationFile);
             }
+
+            DestinationCacheDatabase.getInstance().saveToFile();
         });
     }
 }

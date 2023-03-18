@@ -21,9 +21,9 @@ class BackupPlannerTest {
 
     @Test
     void 新規ファイルのバックアップを計画できる() {
-        testFiles.newOriginFile("one.txt", "aaa");
-        testFiles.newOriginFile("foo/two.txt", "bbb");
-        testFiles.newOriginFile("foo/bar/three.txt", "ccc");
+        testFiles.writeOriginFile("one.txt", "aaa");
+        testFiles.writeOriginFile("foo/two.txt", "bbb");
+        testFiles.writeOriginFile("foo/bar/three.txt", "ccc");
 
         BackupPlans plans = sut.plan();
 
@@ -36,19 +36,19 @@ class BackupPlannerTest {
 
     @Test
     void 更新ファイルのバックアップを計画できる() {
-        testFiles.newOriginFile("one.txt", "111");
-        testFiles.newOriginFile("two.txt", "XXX");
-        testFiles.newOriginFile("foo/three.txt", "333");
-        testFiles.newOriginFile("foo/four.txt", "YYY");
-        testFiles.newOriginFile("foo/bar/five.txt", "555");
-        testFiles.newOriginFile("foo/bar/six.txt", "ZZZ");
+        testFiles.writeOriginFile("one.txt", "111");
+        testFiles.writeOriginFile("two.txt", "XXX");
+        testFiles.writeOriginFile("foo/three.txt", "333");
+        testFiles.writeOriginFile("foo/four.txt", "YYY");
+        testFiles.writeOriginFile("foo/bar/five.txt", "555");
+        testFiles.writeOriginFile("foo/bar/six.txt", "ZZZ");
 
-        testFiles.newDestinationFile("one.txt", "111");
-        testFiles.newDestinationFile("two.txt", "222");
-        testFiles.newDestinationFile("foo/three.txt", "333");
-        testFiles.newDestinationFile("foo/four.txt", "444");
-        testFiles.newDestinationFile("foo/bar/five.txt", "555");
-        testFiles.newDestinationFile("foo/bar/six.txt", "666");
+        testFiles.writeDestinationFile("one.txt", "111");
+        testFiles.writeDestinationFile("two.txt", "222");
+        testFiles.writeDestinationFile("foo/three.txt", "333");
+        testFiles.writeDestinationFile("foo/four.txt", "444");
+        testFiles.writeDestinationFile("foo/bar/five.txt", "555");
+        testFiles.writeDestinationFile("foo/bar/six.txt", "666");
 
         BackupPlans plans = sut.plan();
 
@@ -61,16 +61,16 @@ class BackupPlannerTest {
 
     @Test
     void 削除ファイルのバックアップを計画できる() {
-        testFiles.newOriginFile("two.txt", "222");
-        testFiles.newOriginFile("foo/four.txt", "444");
-        testFiles.newOriginFile("foo/bar/six.txt", "666");
+        testFiles.writeOriginFile("two.txt", "222");
+        testFiles.writeOriginFile("foo/four.txt", "444");
+        testFiles.writeOriginFile("foo/bar/six.txt", "666");
 
-        testFiles.newDestinationFile("one.txt", "111");
-        testFiles.newDestinationFile("two.txt", "222");
-        testFiles.newDestinationFile("foo/three.txt", "333");
-        testFiles.newDestinationFile("foo/four.txt", "444");
-        testFiles.newDestinationFile("foo/bar/five.txt", "555");
-        testFiles.newDestinationFile("foo/bar/six.txt", "666");
+        testFiles.writeDestinationFile("one.txt", "111");
+        testFiles.writeDestinationFile("two.txt", "222");
+        testFiles.writeDestinationFile("foo/three.txt", "333");
+        testFiles.writeDestinationFile("foo/four.txt", "444");
+        testFiles.writeDestinationFile("foo/bar/five.txt", "555");
+        testFiles.writeDestinationFile("foo/bar/six.txt", "666");
 
         BackupPlans plans = sut.plan();
 
@@ -83,17 +83,17 @@ class BackupPlannerTest {
 
     @Test
     void 新規_更新_削除の全てのケースが存在するパターンの確認() {
-        testFiles.newOriginFile("one.txt", "111");
-        testFiles.newOriginFile("two.txt", "222");
-        testFiles.newOriginFile("foo/three.txt", "333");
-        testFiles.newOriginFile("foo/four.txt", "XXX");
-        testFiles.newOriginFile("foo/bar/five.txt", "555");
+        testFiles.writeOriginFile("one.txt", "111");
+        testFiles.writeOriginFile("two.txt", "222");
+        testFiles.writeOriginFile("foo/three.txt", "333");
+        testFiles.writeOriginFile("foo/four.txt", "XXX");
+        testFiles.writeOriginFile("foo/bar/five.txt", "555");
 
-        testFiles.newDestinationFile("one.txt", "111");
-        testFiles.newDestinationFile("foo/three.txt", "333");
-        testFiles.newDestinationFile("foo/four.txt", "444");
-        testFiles.newDestinationFile("foo/bar/five.txt", "555");
-        testFiles.newDestinationFile("foo/bar/six.txt", "666");
+        testFiles.writeDestinationFile("one.txt", "111");
+        testFiles.writeDestinationFile("foo/three.txt", "333");
+        testFiles.writeDestinationFile("foo/four.txt", "444");
+        testFiles.writeDestinationFile("foo/bar/five.txt", "555");
+        testFiles.writeDestinationFile("foo/bar/six.txt", "666");
 
         BackupPlans plans = sut.plan();
 

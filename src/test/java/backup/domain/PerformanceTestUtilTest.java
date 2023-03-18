@@ -87,11 +87,11 @@ public class PerformanceTestUtilTest {
 
     @Test
     void testTree() {
-        testFiles.newOriginFile("001.txt", "abc");
-        testFiles.newOriginFile("002.txt", "abcd");
-        testFiles.newOriginFile("a/001.txt", "AB");
-        testFiles.newOriginFile("b/001.txt", "ABC");
-        testFiles.newOriginFile("001/001.txt", "abcde");
+        testFiles.writeOriginFile("001.txt", "abc");
+        testFiles.writeOriginFile("002.txt", "abcd");
+        testFiles.writeOriginFile("a/001.txt", "AB");
+        testFiles.writeOriginFile("b/001.txt", "ABC");
+        testFiles.writeOriginFile("001/001.txt", "abcde");
 
         String actual = PerformanceTestUtil.tree(testFiles.originDir());
 
