@@ -36,7 +36,7 @@ class BackupServiceTest {
     @BeforeEach
     void setUp() throws Exception {
         DestinationCacheDatabase.getInstance().reset();
-        Files.delete(dat);
+        Files.deleteIfExists(dat);
     }
 
     @AfterEach

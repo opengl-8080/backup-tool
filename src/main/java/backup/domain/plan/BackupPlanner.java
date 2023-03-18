@@ -4,6 +4,8 @@ import backup.domain.file.CachedLocalFile;
 import backup.domain.file.LocalDirectory;
 import backup.domain.file.LocalFile;
 import backup.domain.measure.StopWatch;
+import backup.domain.thread.MultiThreadWorker;
+import backup.domain.thread.WorkerContext;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,10 +22,15 @@ public class BackupPlanner {
 
     public BackupPlans plan() {
         return StopWatch.measure("plan", () -> {
+
+            final WorkerContext<List<BackupPlan>> context = MultiThreadWorker.getInstance().newContext();
+
+            context.submit(this::analyseUpdatedFiles);
+            context.submit(this::analyseRemovedFiles);
+
             List<BackupPlan> plans = new ArrayList<>();
 
-            plans.addAll(analyseUpdatedFiles());
-            plans.addAll(analyseRemovedFiles());
+            context.getResultOnlyNonNull().forEach(plans::addAll);
 
             return new BackupPlans(plans);
         });
@@ -31,39 +38,47 @@ public class BackupPlanner {
 
     private List<BackupPlan> analyseUpdatedFiles() {
         return StopWatch.measure("analyseUpdatedFiles", () -> {
-            List<BackupPlan> plans = new ArrayList<>();
+            final WorkerContext<BackupPlan> context = MultiThreadWorker.getInstance().newContext();
 
             originDirectory.walk((originFile, relativePath) -> {
-                final LocalFile destinationFile = destinationDirectory.resolveFile(relativePath);
+                context.submit(() -> {
+                    final LocalFile destinationFile = destinationDirectory.resolveFile(relativePath);
 
-                if (!destinationFile.exists()) {
-                    plans.add(new BackupPlan(Operation.ADD, relativePath));
-                } else if (!originFile.contentEquals(new CachedLocalFile(destinationFile))) {
-                    plans.add(new BackupPlan(Operation.UPDATE, relativePath));
-                }
+                    if (!destinationFile.exists()) {
+                        return new BackupPlan(Operation.ADD, relativePath);
+                    } else if (!originFile.contentEquals(new CachedLocalFile(destinationFile))) {
+                        return new BackupPlan(Operation.UPDATE, relativePath);
+                    } else {
+                        return null;
+                    }
+                });
             });
 
-            return plans;
+            return context.getResultOnlyNonNull();
         });
     }
 
     private List<BackupPlan> analyseRemovedFiles() {
         return StopWatch.measure("analyseRemovedFiles", () -> {
-            List<BackupPlan> plans = new ArrayList<>();
+            final WorkerContext<BackupPlan> context = MultiThreadWorker.getInstance().newContext();
 
             destinationDirectory.walk((destinationFile, relativePath) -> {
-                if (!destinationFile.isLatest()) {
-                    return;
-                }
+                context.submit(() -> {
+                    if (!destinationFile.isLatest()) {
+                        return null;
+                    }
 
-                final LocalFile originFile = originDirectory.resolveFile(relativePath);
+                    final LocalFile originFile = originDirectory.resolveFile(relativePath);
 
-                if (!originFile.exists()) {
-                    plans.add(new BackupPlan(Operation.REMOVE, relativePath));
-                }
+                    if (!originFile.exists()) {
+                        return new BackupPlan(Operation.REMOVE, relativePath);
+                    }
+
+                    return null;
+                });
             });
 
-            return plans;
+            return context.getResultOnlyNonNull();
         });
     }
 }

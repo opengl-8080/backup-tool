@@ -1,5 +1,7 @@
 package backup.domain.cache;
 
+import backup.domain.measure.StopWatch;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
@@ -48,44 +50,48 @@ public class DestinationCacheDatabase {
     private final int BUFFER_SIZE = 1024 * 1024;
 
     public void restoreFromFile() {
-        reset();
+        StopWatch.measure("restoreFormFile", () -> {
+            reset();
 
-        if (!persistenceFile.toFile().exists()) {
-            return;
-        }
-
-        try (
-            final InputStream in = new BufferedInputStream(Files.newInputStream(persistenceFile, StandardOpenOption.READ), BUFFER_SIZE);
-        ) {
-            int pathSize;
-            while ((pathSize = in.read()) != -1) {
-                final Path path = Path.of(new String(readNextBlock(in, pathSize), StandardCharsets.UTF_8));
-                final byte[] hash = readNextBlock(in, in.read());
-
-                put(path, hash);
+            if (!persistenceFile.toFile().exists()) {
+                return;
             }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+
+            try (
+                final InputStream in = new BufferedInputStream(Files.newInputStream(persistenceFile, StandardOpenOption.READ), BUFFER_SIZE);
+            ) {
+                int pathSize;
+                while ((pathSize = in.read()) != -1) {
+                    final Path path = Path.of(new String(readNextBlock(in, pathSize), StandardCharsets.UTF_8));
+                    final byte[] hash = readNextBlock(in, in.read());
+
+                    put(path, hash);
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     public void saveToFile() {
-        try (
-            final OutputStream out = new BufferedOutputStream(Files.newOutputStream(persistenceFile), BUFFER_SIZE);
-        ) {
-            for (Map.Entry<Path, byte[]> entry : caches.entrySet()) {
-                final Path path = entry.getKey();
-                final byte[] pathBytes = path.toString().getBytes(StandardCharsets.UTF_8);
-                out.write(pathBytes.length);
-                out.write(pathBytes);
+        StopWatch.measure("saveToFile", () -> {
+            try (
+                final OutputStream out = new BufferedOutputStream(Files.newOutputStream(persistenceFile), BUFFER_SIZE);
+            ) {
+                for (Map.Entry<Path, byte[]> entry : caches.entrySet()) {
+                    final Path path = entry.getKey();
+                    final byte[] pathBytes = path.toString().getBytes(StandardCharsets.UTF_8);
+                    out.write(pathBytes.length);
+                    out.write(pathBytes);
 
-                final byte[] hash = entry.getValue();
-                out.write(hash.length);
-                out.write(hash);
+                    final byte[] hash = entry.getValue();
+                    out.write(hash.length);
+                    out.write(hash);
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        });
     }
 
     private byte[] readNextBlock(InputStream in, int size) throws IOException {
