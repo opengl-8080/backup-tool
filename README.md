@@ -36,3 +36,8 @@ destination.foo=path/to/foo/destination/dir
 ```
 $ java -jar backup-tool.jar --config=path/to/config.properites
 ```
+
+## 更新内容
+
+- 1.0.0
+  - 初回リリース
