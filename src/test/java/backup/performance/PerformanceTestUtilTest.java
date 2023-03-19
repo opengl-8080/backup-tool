@@ -1,5 +1,6 @@
-package backup.domain;
+package backup.performance;
 
+import backup.domain.TestFiles;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
