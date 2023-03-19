@@ -5,16 +5,15 @@ import backup.domain.file.LocalDirectory;
 import backup.domain.time.DefaultSystemTimeProvider;
 import backup.domain.time.FixedSystemTimeProvider;
 import backup.domain.time.SystemTime;
-import org.assertj.core.api.Condition;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
 
-import java.io.File;
 import java.nio.file.Path;
 
+import static backup.domain.TestConditions.fileCount;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class BackupServiceTest {
@@ -211,23 +210,5 @@ class BackupServiceTest {
 
         assertThat(testFiles.destinationFile("fizz")).has(fileCount(1));
         assertThat(testFiles.destinationFile("fizz/004.txt")).hasContent("four");
-    }
-
-    private Condition<Path> fileCount(int expectedFileCount) {
-        return new Condition<>(path -> {
-            final File[] files = path.toFile().listFiles();
-            if (files == null ) {
-                return expectedFileCount == 0;
-            }
-
-            int actualFileCount = 0;
-            for (File file : files) {
-                if (file.isFile()) {
-                    actualFileCount++;
-                }
-            }
-
-            return actualFileCount == expectedFileCount;
-        }, "file count %d", expectedFileCount);
     }
 }

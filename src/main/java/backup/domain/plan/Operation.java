@@ -39,7 +39,7 @@ public enum Operation {
 
     protected Path rotate(LocalFile file) {
         final String baseName = file.baseName();
-        final String extension = file.extension();
+        final String extension = file.extension().orElse("");
         final String rotatedFileName = baseName + "#" + FORMATTER.format(SystemTime.now()) + extension;
         final LocalFile rotatedFile = file.sibling(rotatedFileName);
         file.moveTo(rotatedFile);

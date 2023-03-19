@@ -13,6 +13,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 public class LocalFile {
@@ -55,11 +56,19 @@ public class LocalFile {
     }
 
     public String baseName() {
-        return fileName().substring(0, lastDotIndex());
+        return hasExtension() ? fileName().substring(0, lastDotIndex()) : fileName();
     }
 
-    public String extension() {
-        return fileName().substring(lastDotIndex());
+    public Optional<String> extension() {
+        if (hasExtension()) {
+            return Optional.of(fileName().substring(lastDotIndex()));
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    private boolean hasExtension() {
+        return lastDotIndex() != -1;
     }
 
     private int lastDotIndex() {
