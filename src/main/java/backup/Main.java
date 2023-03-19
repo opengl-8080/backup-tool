@@ -16,7 +16,7 @@ public class Main {
             if (arg.startsWith("--config=")) {
                 config = BackupConfig.load(Path.of(arg.replaceAll("^--config=", "")));
             } else if (arg.equals("-v") || arg.equals("--version")) {
-                System.out.println("1.0.0");
+                System.out.println("1.0.1");
                 return;
             }
         }

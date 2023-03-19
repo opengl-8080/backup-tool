@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static backup.domain.TestConditions.fileCount;
@@ -40,6 +41,18 @@ class BackupServiceTest {
     @AfterEach
     void tearDown() {
         SystemTime.setProvider(new DefaultSystemTimeProvider());
+    }
+
+    @Test
+    void コピー先のディレクトリが無い場合エラーにならないこと() throws Exception {
+        Files.delete(testFiles.destinationDir());
+
+        testFiles.writeOriginFile("test1.txt", "one");
+
+        sut.backup();
+
+        assertThat(testFiles.destinationDir()).has(fileCount(1));
+        assertThat(testFiles.destinationFile("test1.txt")).hasContent("one");
     }
 
     @Test

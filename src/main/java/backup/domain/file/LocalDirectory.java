@@ -35,6 +35,10 @@ public class LocalDirectory {
     }
 
     public void walk(DirectoryVisitor visitor) {
+        if (!path.toFile().exists()) {
+            return;
+        }
+
         try {
             Files.walkFileTree(path, new SimpleFileVisitor<>() {
                 @Override
