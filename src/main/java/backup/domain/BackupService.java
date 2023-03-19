@@ -41,6 +41,7 @@ public class BackupService {
             ));
 
             cache.restoreFromFile();
+            Runtime.getRuntime().addShutdownHook(new Thread(cache::saveToFile));
 
             final BackupPlanner planner = new BackupPlanner(cache, originDirectory, destinationDirectory);
             final BackupPlans plans = planner.plan();
@@ -50,8 +51,6 @@ public class BackupService {
             ));
 
             doBackup(plans);
-
-            cache.saveToFile();
 
             logger.info("Backup finished (origin=%s, destination=%s, add=%d, update=%d, remove=%d).".formatted(
                 originDirectory.path(), destinationDirectory.path(),
