@@ -7,9 +7,15 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class BackupConfig {
+    private static final Pattern KEY_PATTERN = Pattern.compile("^(origin|destination)\\.(?<name>.+)$");
 
     public static BackupConfig load(Path configFile) {
         final Properties props = new Properties();
@@ -20,36 +26,41 @@ public class BackupConfig {
             throw new RuntimeException(e);
         }
 
-        return new BackupConfig(props);
-    }
+        Path home = Path.of(props.getProperty("home", "."));
 
-    private final Properties props;
-    private final Path home;
+        Map<String, BackupContext.Builder> builders = new HashMap<>();
 
-    private BackupConfig(Properties props) {
-        this.props = props;
-        this.home = Path.of(props.getProperty("home", "."));
-    }
+        for (Object key : props.keySet()) {
+            final String textKey = (String) key;
+            final Matcher matcher = KEY_PATTERN.matcher(textKey);
 
-    public Path logFile() {
-        return home.resolve("backup.log");
-    }
+            if (matcher.find()) {
+                final String name = matcher.group("name");
 
-    public Path destinationCache() {
-        return home.resolve("destination-cache.dat");
-    }
+                final BackupContext.Builder builder = builders.computeIfAbsent(name, n -> new BackupContext.Builder(home, name));
 
-    public LocalDirectory originDirectory() {
-        if (!props.containsKey("origin")) {
-            throw new RuntimeException("origin (バックアップ元ディレクトリ)が設定ファイルに設定されていません");
+                if (textKey.startsWith("origin.")) {
+                    final String origin = props.getProperty(textKey);
+                    builder.setOriginDirectory(new LocalDirectory(Path.of(origin)));
+                } else if (textKey.startsWith("destination.")) {
+                    final String destination = props.getProperty(textKey);
+                    builder.setDestinationDirectory(new LocalDirectory(Path.of(destination)));
+                }
+            }
         }
-        return new LocalDirectory(Path.of(props.getProperty("origin")));
+
+        final List<BackupContext> contexts = builders.values().stream().map(BackupContext.Builder::build).toList();
+
+        return new BackupConfig(contexts);
     }
 
-    public LocalDirectory destinationDirectory() {
-        if (!props.containsKey("destination")) {
-            throw new RuntimeException("destination (バックアップ咲ディレクトリ)が設定ファイルに設定されていません");
-        }
-        return new LocalDirectory(Path.of(props.getProperty("destination")));
+    private final List<BackupContext> contexts;
+
+    private BackupConfig(List<BackupContext> contexts) {
+        this.contexts = contexts;
+    }
+
+    public List<BackupContext> contexts() {
+        return contexts;
     }
 }

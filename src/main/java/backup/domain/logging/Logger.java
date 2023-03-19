@@ -14,17 +14,27 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class Logger {
-    private static final Logger INSTANCE = new Logger();
-
-    public static Logger getInstance() {
-        return INSTANCE;
+    public static Logger nullLogger() {
+        return new Logger();
     }
+
+    private final String name;
 
     private Writer fileWriter;
     private boolean debugEnable;
 
-    public void initialize(Path logFile) {
+    public Logger(String name, Path logFile) {
+        this.name = name;
+        initializeLogFile(logFile);
+    }
+
+    private Logger() {
+        this.name = "NullLogger";
+    }
+
+    private void initializeLogFile(Path logFile) {
         try {
+            Files.createDirectories(logFile.getParent());
             fileWriter = new BufferedWriter(new OutputStreamWriter(
                     Files.newOutputStream(logFile, StandardOpenOption.APPEND, StandardOpenOption.CREATE),
                     StandardCharsets.UTF_8));
@@ -115,8 +125,10 @@ public class Logger {
             stackTrace = " - " + exception.getMessage() + "\n" + buffer.toString();
         }
 
-        return "%s [%-5s] %s%s".formatted(DATE_TIME_FORMATTER.format(LocalDateTime.now()), logLevel, message, stackTrace);
+        return "%s [%-5s] -%s- %s%s".formatted(DATE_TIME_FORMATTER.format(LocalDateTime.now()),
+                logLevel,
+                name,
+                message,
+                stackTrace);
     }
-
-    private Logger() {}
 }

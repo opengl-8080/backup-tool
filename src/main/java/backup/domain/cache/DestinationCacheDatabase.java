@@ -12,6 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -22,15 +23,13 @@ import java.util.concurrent.ConcurrentHashMap;
  * </p>
  */
 public class DestinationCacheDatabase {
-    private static final DestinationCacheDatabase INSTANCE = new DestinationCacheDatabase();
-
-    public static DestinationCacheDatabase getInstance() {
-        return INSTANCE;
-    }
+    private final int BUFFER_SIZE = 1024 * 1024;
     private final Map<Path, byte[]> caches = new ConcurrentHashMap<>();
-    private Path persistenceFile;
+    private final Path persistenceFile;
 
-    private DestinationCacheDatabase() {}
+    public DestinationCacheDatabase(Path persistenceFile) {
+        this.persistenceFile = Objects.requireNonNull(persistenceFile);
+    }
 
     public void put(Path path, byte[] hash) {
         caches.put(path, hash);
@@ -43,11 +42,6 @@ public class DestinationCacheDatabase {
     public void reset() {
         caches.clear();
     }
-
-    public void setPersistenceFile(Path persistenceFile) {
-        this.persistenceFile = persistenceFile;
-    }
-    private final int BUFFER_SIZE = 1024 * 1024;
 
     public void restoreFromFile() {
         StopWatch.measure("restoreFormFile", () -> {
@@ -67,14 +61,14 @@ public class DestinationCacheDatabase {
 
                     put(path, hash);
                 }
-            } catch (IOException e) {
-                throw new RuntimeException(e);
             }
         });
     }
 
     public void saveToFile() {
         StopWatch.measure("saveToFile", () -> {
+            Files.createDirectories(persistenceFile.getParent());
+
             try (
                 final OutputStream out = new BufferedOutputStream(Files.newOutputStream(persistenceFile), BUFFER_SIZE);
             ) {
@@ -88,8 +82,6 @@ public class DestinationCacheDatabase {
                     out.write(hash.length);
                     out.write(hash);
                 }
-            } catch (IOException e) {
-                throw new RuntimeException(e);
             }
         });
     }

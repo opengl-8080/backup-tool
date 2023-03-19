@@ -1,9 +1,10 @@
 package backup;
 
 import backup.domain.BackupService;
-import backup.domain.cache.DestinationCacheDatabase;
 import backup.domain.config.BackupConfig;
-import backup.domain.logging.Logger;
+import backup.domain.config.BackupContext;
+import backup.domain.thread.MultiThreadWorker;
+import backup.domain.thread.WorkerContext;
 
 import java.nio.file.Path;
 
@@ -21,10 +22,15 @@ public class Main {
             throw new RuntimeException("コマンドライン引数で設定ファイルを指定してください > --config=path/to/backup.properties");
         }
 
-        DestinationCacheDatabase.getInstance().setPersistenceFile(config.destinationCache());
-        Logger.getInstance().initialize(config.logFile());
+        final WorkerContext<Object> multiThreadContext = MultiThreadWorker.getInstance().newContext();
 
-        final BackupService service = new BackupService(config.originDirectory(), config.destinationDirectory());
-        service.backup();
+        for (BackupContext context : config.contexts()) {
+            multiThreadContext.submit(() -> {
+                final BackupService service = new BackupService(context);
+                service.backup();
+            });
+        }
+
+        multiThreadContext.join();
     }
 }

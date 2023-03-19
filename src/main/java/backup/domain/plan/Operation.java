@@ -10,32 +10,32 @@ import java.time.format.DateTimeFormatter;
 public enum Operation {
     ADD {
         @Override
-        public void execute(LocalFile originFile, LocalFile destinationFile) {
+        public void execute(Logger logger, LocalFile originFile, LocalFile destinationFile) {
             originFile.copyTo(destinationFile);
-            Logger.getInstance().infoFileOnly(
+            logger.infoFileOnly(
                     "ADD origin=%s, dest=%s".formatted(originFile.path(), destinationFile.path()));
         }
     },
     UPDATE {
         @Override
-        public void execute(LocalFile originFile, LocalFile destinationFile) {
+        public void execute(Logger logger, LocalFile originFile, LocalFile destinationFile) {
             final Path rotatedPath = rotate(destinationFile);
             originFile.copyTo(destinationFile);
-            Logger.getInstance().infoFileOnly(
+            logger.infoFileOnly(
                     "UPDATE origin=%s, dest=%s, rotated=%s".formatted(originFile.path(), destinationFile.path(), rotatedPath));
         }
     },
     REMOVE {
         @Override
-        public void execute(LocalFile originFile, LocalFile destinationFile) {
+        public void execute(Logger logger, LocalFile originFile, LocalFile destinationFile) {
             final Path rotatedPath = rotate(destinationFile);
-            Logger.getInstance().infoFileOnly(
+            logger.infoFileOnly(
                     "REMOVE origin=%s, dest=%s, rotated=%s".formatted(originFile.path(), destinationFile.path(), rotatedPath));
         }
     };
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("uuuuMMdd-HHmmssSSS");
 
-    public abstract void execute(LocalFile originFile, LocalFile destinationFile);
+    public abstract void execute(Logger logger, LocalFile originFile, LocalFile destinationFile);
 
     protected Path rotate(LocalFile file) {
         final String baseName = file.baseName();

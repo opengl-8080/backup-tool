@@ -3,11 +3,13 @@ package backup.domain.logging;
 import java.util.Optional;
 
 public class Progress {
+    private final String name;
     private final long total;
 
     private long current = 0L;
 
-    public Progress(long total) {
+    public Progress(String name, long total) {
+        this.name = name;
         this.total = total;
     }
 
@@ -27,10 +29,10 @@ public class Progress {
 
     public String currentProgress() {
         if (total == 0) {
-            return "0/0 (0.0%)";
+            return "-%s- 0/0 (0.0%%)".formatted(name);
         }
 
-        return "%d/%d (%.1f%%)".formatted(current, total, percent(current));
+        return "-%s- %d/%d (%.1f%%)".formatted(name, current, total, percent(current));
     }
 
     private int region(long step) {

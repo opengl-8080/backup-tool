@@ -1,11 +1,15 @@
 package backup.domain;
 
 import backup.domain.cache.DestinationCacheDatabase;
+import backup.domain.config.BackupContext;
 import backup.domain.file.LocalDirectory;
+import backup.domain.logging.Logger;
 import backup.domain.measure.Statistics;
 import backup.domain.measure.StopWatch;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
@@ -14,7 +18,6 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.time.LocalDateTime;
 import java.util.Arrays;
 
 public class PerformanceTest {
@@ -24,17 +27,24 @@ public class PerformanceTest {
 
     final Path originDir = testFiles.originDir();
     final Path destinationDir = testFiles.destinationDir();
+    @TempDir
+    Path tempDir;
+    BackupContext context;
+    BackupService sut;
 
-    final BackupService sut = new BackupService(
-        LocalDirectory.of(originDir),
-        LocalDirectory.of(destinationDir)
-    );
+    @BeforeEach
+    void setUp() {
+        context = new BackupContext(
+            tempDir.resolve("home"),
+            "performance-test",
+            LocalDirectory.of(testFiles.originDir()),
+            LocalDirectory.of(testFiles.destinationDir())
+        );
+        sut = new BackupService(context);
+    }
 
     @Test
     void test() throws Exception {
-        final Path dat = Path.of("./build/performance-test.dat");
-        DestinationCacheDatabase.getInstance().setPersistenceFile(dat);
-
         System.out.println("warm up");
         for (int i=0; i<5; i++) {
             System.out.println(i);
@@ -42,8 +52,8 @@ public class PerformanceTest {
             PerformanceTestUtil.createDirectory(originDir, 3, 5, 3, 1024);
             sut.backup();
 
-            DestinationCacheDatabase.getInstance().reset();
-            Files.delete(dat);
+            sut.getCache().reset();
+            Files.delete(context.destinationCache());
             testFiles.reset();
         }
 
@@ -73,9 +83,9 @@ public class PerformanceTest {
             thirdStatistics.add(StopWatch.dumpStatistics());
             StopWatch.reset();
 
-            DestinationCacheDatabase.getInstance().reset();
+            sut.getCache().reset();
             testFiles.reset();
-            Files.delete(dat);
+            Files.delete(context.destinationCache());
         }
         firstStatistics.print("first");
         secondStatistics.print("second");

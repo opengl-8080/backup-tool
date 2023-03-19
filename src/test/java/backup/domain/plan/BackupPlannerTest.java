@@ -1,6 +1,7 @@
 package backup.domain.plan;
 
 import backup.domain.TestFiles;
+import backup.domain.cache.DestinationCacheDatabase;
 import backup.domain.file.LocalDirectory;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -14,7 +15,11 @@ class BackupPlannerTest {
     @RegisterExtension
     final TestFiles testFiles = new TestFiles();
 
+    final Path cacheFile = Path.of("./build/planner-test-cache.dat");
+    final DestinationCacheDatabase cache = new DestinationCacheDatabase(cacheFile);
+
     final BackupPlanner sut = new BackupPlanner(
+        cache,
         new LocalDirectory(testFiles.originDir()),
         new LocalDirectory(testFiles.destinationDir())
     );

@@ -1,19 +1,18 @@
 package backup.domain;
 
-import backup.domain.cache.DestinationCacheDatabase;
+import backup.domain.config.BackupContext;
 import backup.domain.file.LocalDirectory;
 import backup.domain.time.DefaultSystemTimeProvider;
 import backup.domain.time.FixedSystemTimeProvider;
 import backup.domain.time.SystemTime;
 import org.assertj.core.api.Condition;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
-import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -21,22 +20,22 @@ import static org.assertj.core.api.Assertions.assertThat;
 class BackupServiceTest {
     @RegisterExtension
     final TestFiles testFiles = new TestFiles();
-    static final Path dat = Path.of("./build/backup-service-test.dat");
 
-    final BackupService sut = new BackupService(
-        LocalDirectory.of(testFiles.originDir()),
-        LocalDirectory.of(testFiles.destinationDir())
-    );
-
-    @BeforeAll
-    static void beforeAll() {
-        DestinationCacheDatabase.getInstance().setPersistenceFile(dat);
-    }
+    @TempDir
+    Path tempDir;
+    BackupContext context;
+    BackupService sut;
 
     @BeforeEach
-    void setUp() throws Exception {
-        DestinationCacheDatabase.getInstance().reset();
-        Files.deleteIfExists(dat);
+    void setUp() {
+        context = new BackupContext(
+            tempDir.resolve("home"),
+            "backup-service-test",
+            LocalDirectory.of(testFiles.originDir()),
+            LocalDirectory.of(testFiles.destinationDir())
+        );
+
+        sut = new BackupService(context);
     }
 
     @AfterEach
@@ -168,7 +167,7 @@ class BackupServiceTest {
         assertThat(testFiles.destinationFile("foo/bar/003.txt")).hasContent("three");
 
         // second
-        DestinationCacheDatabase.getInstance().reset();
+        sut.getCache().reset();
 
         SystemTime.setProvider(FixedSystemTimeProvider.of("2023-03-09 11:22:33.444"));
         testFiles.writeOriginFile("001.txt", "ONE");
@@ -190,7 +189,7 @@ class BackupServiceTest {
         assertThat(testFiles.destinationFile("fizz/004.txt")).hasContent("four");
 
         // third
-        DestinationCacheDatabase.getInstance().reset();
+        sut.getCache().reset();
 
         SystemTime.setProvider(FixedSystemTimeProvider.of("2023-03-10 22:33:44.555"));
 
