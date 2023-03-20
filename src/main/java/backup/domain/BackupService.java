@@ -35,23 +35,28 @@ public class BackupService {
     }
 
     public WorkerContext<Void> backup() {
-        return StopWatch.measure("backup", () -> {
-            logger.info("Planning... (origin=%s, destination=%s)".formatted(
-                originDirectory.path(), destinationDirectory.path()
-            ));
+        try {
+            return StopWatch.measure("backup", () -> {
+                logger.info("Planning... (origin=%s, destination=%s)".formatted(
+                        originDirectory.path(), destinationDirectory.path()
+                ));
 
-            cache.restoreFromFile();
-            Runtime.getRuntime().addShutdownHook(new Thread(cache::saveToFile));
+                cache.restoreFromFile();
+                Runtime.getRuntime().addShutdownHook(new Thread(cache::saveToFile));
 
-            final BackupPlanner planner = new BackupPlanner(cache, originDirectory, destinationDirectory);
-            final BackupPlans plans = planner.plan();
+                final BackupPlanner planner = new BackupPlanner(cache, originDirectory, destinationDirectory);
+                final BackupPlans plans = planner.plan();
 
-            logger.info("Start backup (add=%d, update=%d, remove=%d).".formatted(
-                plans.addCount(), plans.updateCount(), plans.removeCount()
-            ));
+                logger.info("Start backup (add=%d, update=%d, remove=%d).".formatted(
+                        plans.addCount(), plans.updateCount(), plans.removeCount()
+                ));
 
-            return doBackup(plans);
-        });
+                return doBackup(plans);
+            });
+        } catch (Exception e) {
+            logger.error("unknown error", e);
+            throw new RuntimeException(e);
+        }
     }
 
     private WorkerContext<Void> doBackup(BackupPlans plans) {
