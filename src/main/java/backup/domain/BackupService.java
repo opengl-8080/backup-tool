@@ -34,9 +34,9 @@ public class BackupService {
         return cache;
     }
 
-    public void backup() {
-        StopWatch.measure("backup", () -> {
-            logger.info("Start Backup (origin=%s, destination=%s)".formatted(
+    public WorkerContext<Void> backup() {
+        return StopWatch.measure("backup", () -> {
+            logger.info("Planning... (origin=%s, destination=%s)".formatted(
                 originDirectory.path(), destinationDirectory.path()
             ));
 
@@ -46,22 +46,17 @@ public class BackupService {
             final BackupPlanner planner = new BackupPlanner(cache, originDirectory, destinationDirectory);
             final BackupPlans plans = planner.plan();
 
-            logger.info("Planned (add=%d, update=%d, remove=%d).".formatted(
+            logger.info("Start backup (add=%d, update=%d, remove=%d).".formatted(
                 plans.addCount(), plans.updateCount(), plans.removeCount()
             ));
 
-            doBackup(plans);
-
-            logger.info("Backup finished (origin=%s, destination=%s, add=%d, update=%d, remove=%d).".formatted(
-                originDirectory.path(), destinationDirectory.path(),
-                plans.addCount(), plans.updateCount(), plans.removeCount()
-            ));
+            return doBackup(plans);
         });
     }
 
-    private void doBackup(BackupPlans plans) {
+    private WorkerContext<Void> doBackup(BackupPlans plans) {
 
-        StopWatch.measure("doBackup", () -> {
+        return StopWatch.measure("doBackup", () -> {
             final Progress progress = new Progress(context.name(), plans.totalCount());
             System.out.println(progress.currentProgress());
 
@@ -78,7 +73,7 @@ public class BackupService {
                 });
             }
 
-            context.join();
+            return context;
         });
     }
 }

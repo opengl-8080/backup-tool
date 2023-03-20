@@ -3,10 +3,11 @@ package backup;
 import backup.domain.BackupService;
 import backup.domain.config.BackupConfig;
 import backup.domain.config.BackupContext;
-import backup.domain.thread.MultiThreadWorker;
 import backup.domain.thread.WorkerContext;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Main {
 
@@ -25,15 +26,13 @@ public class Main {
             throw new RuntimeException("コマンドライン引数で設定ファイルを指定してください > --config=path/to/backup.properties");
         }
 
-        final WorkerContext<Object> multiThreadContext = MultiThreadWorker.getInstance().newContext();
+        List<WorkerContext<Void>> backupWorkerContexts = new ArrayList<>();
 
         for (BackupContext context : config.contexts()) {
-            multiThreadContext.submit(() -> {
-                final BackupService service = new BackupService(context);
-                service.backup();
-            });
+            final BackupService service = new BackupService(context);
+            backupWorkerContexts.add(service.backup());
         }
 
-        multiThreadContext.join();
+        backupWorkerContexts.forEach(WorkerContext::join);
     }
 }

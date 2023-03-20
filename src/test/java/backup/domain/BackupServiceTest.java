@@ -49,7 +49,7 @@ class BackupServiceTest {
 
         testFiles.writeOriginFile("test1.txt", "one");
 
-        sut.backup();
+        sut.backup().join();
 
         assertThat(testFiles.destinationDir()).has(fileCount(1));
         assertThat(testFiles.destinationFile("test1.txt")).hasContent("one");
@@ -61,7 +61,7 @@ class BackupServiceTest {
         testFiles.writeOriginFile("foo/test2.txt", "two");
         testFiles.writeOriginFile("fizz/buzz/test3.txt", "three");
 
-        sut.backup();
+        sut.backup().join();
 
         assertThat(testFiles.destinationDir()).has(fileCount(1));
         assertThat(testFiles.destinationFile("test1.txt")).hasContent("one");
@@ -84,7 +84,7 @@ class BackupServiceTest {
 
         SystemTime.setProvider(FixedSystemTimeProvider.of("2023-03-09 11:22:33.444"));
 
-        sut.backup();
+        sut.backup().join();
 
         assertThat(testFiles.destinationDir()).has(fileCount(1));
         assertThat(testFiles.destinationFile("test1.txt")).hasContent("one");
@@ -108,7 +108,7 @@ class BackupServiceTest {
 
         SystemTime.setProvider(FixedSystemTimeProvider.of("2023-03-09 11:22:33.444"));
 
-        sut.backup();
+        sut.backup().join();
 
         assertThat(testFiles.destinationDir()).has(fileCount(2));
         assertThat(testFiles.destinationFile("test1.txt")).hasContent("one");
@@ -140,7 +140,7 @@ class BackupServiceTest {
 
         SystemTime.setProvider(FixedSystemTimeProvider.of("2023-03-09 11:22:33.444"));
 
-        sut.backup();
+        sut.backup().join();
 
         assertThat(testFiles.destinationDir()).has(fileCount(1));
         assertThat(testFiles.destinationFile("test1#20230309-112233444.txt")).hasContent("one");
@@ -167,7 +167,7 @@ class BackupServiceTest {
         testFiles.writeOriginFile("foo/002.txt", "two");
         testFiles.writeOriginFile("foo/bar/003.txt", "three");
 
-        sut.backup();
+        sut.backup().join();
 
         assertThat(testFiles.destinationDir()).has(fileCount(1));
         assertThat(testFiles.destinationFile("001.txt")).hasContent("one");
@@ -185,7 +185,7 @@ class BackupServiceTest {
         testFiles.writeOriginFile("001.txt", "ONE");
         testFiles.writeOriginFile("fizz/004.txt", "four");
 
-        sut.backup();
+        sut.backup().join();
 
         assertThat(testFiles.destinationDir()).has(fileCount(2));
         assertThat(testFiles.destinationFile("001.txt")).hasContent("ONE");
@@ -208,7 +208,7 @@ class BackupServiceTest {
         testFiles.removeOriginFile("001.txt");
         testFiles.writeOriginFile("foo/002.txt", "TWO");
 
-        sut.backup();
+        sut.backup().join();
 
         assertThat(testFiles.destinationDir()).has(fileCount(2));
         assertThat(testFiles.destinationFile("001#20230310-223344555.txt")).hasContent("ONE");
