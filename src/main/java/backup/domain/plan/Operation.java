@@ -11,26 +11,43 @@ public enum Operation {
     ADD {
         @Override
         public void execute(Logger logger, LocalFile originFile, LocalFile destinationFile) {
-            originFile.copyTo(destinationFile);
-            logger.infoFileOnly(
-                    "ADD origin=%s, dest=%s".formatted(originFile.path(), destinationFile.path()));
+            final long begin = System.currentTimeMillis();
+            try {
+                originFile.copyTo(destinationFile);
+            } finally {
+                final long time = System.currentTimeMillis() - begin;
+                logger.infoFileOnly(
+                        "ADD (%dms) origin=%s, dest=%s".formatted(time, originFile.path(), destinationFile.path()));
+            }
         }
     },
     UPDATE {
         @Override
         public void execute(Logger logger, LocalFile originFile, LocalFile destinationFile) {
-            final Path rotatedPath = rotate(destinationFile);
-            originFile.copyTo(destinationFile);
-            logger.infoFileOnly(
-                    "UPDATE origin=%s, dest=%s, rotated=%s".formatted(originFile.path(), destinationFile.path(), rotatedPath));
+            final long begin = System.currentTimeMillis();
+            Path rotatedPath = null;
+            try {
+                rotatedPath = rotate(destinationFile);
+                originFile.copyTo(destinationFile);
+            } finally {
+                final long time = System.currentTimeMillis() - begin;
+                logger.infoFileOnly(
+                        "UPDATE (%dms) origin=%s, dest=%s, rotated=%s".formatted(time, originFile.path(), destinationFile.path(), rotatedPath));
+            }
         }
     },
     REMOVE {
         @Override
         public void execute(Logger logger, LocalFile originFile, LocalFile destinationFile) {
-            final Path rotatedPath = rotate(destinationFile);
-            logger.infoFileOnly(
-                    "REMOVE origin=%s, dest=%s, rotated=%s".formatted(originFile.path(), destinationFile.path(), rotatedPath));
+            final long begin = System.currentTimeMillis();
+            Path rotatedPath = null;
+            try {
+                rotatedPath = rotate(destinationFile);
+            } finally {
+                final long time = System.currentTimeMillis() - begin;
+                logger.infoFileOnly(
+                        "REMOVE (%dms) origin=%s, dest=%s, rotated=%s".formatted(time, originFile.path(), destinationFile.path(), rotatedPath));
+            }
         }
     };
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("uuuuMMdd-HHmmssSSS");
