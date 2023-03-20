@@ -42,10 +42,11 @@ public class BackupService {
                 ));
 
                 cache.restoreFromFile();
-                Runtime.getRuntime().addShutdownHook(new Thread(cache::saveToFile));
 
                 final BackupPlanner planner = new BackupPlanner(cache, originDirectory, destinationDirectory);
                 final BackupPlans plans = planner.plan();
+
+                cache.saveToFile();
 
                 logger.info("Start backup (add=%d, update=%d, remove=%d).".formatted(
                         plans.addCount(), plans.updateCount(), plans.removeCount()
