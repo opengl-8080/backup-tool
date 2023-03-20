@@ -58,7 +58,7 @@ public class BackupService {
 
         return StopWatch.measure("doBackup", () -> {
             final Progress progress = new Progress(context.name(), plans.totalCount());
-            System.out.println(progress.currentProgress());
+            logger.info(progress.currentProgress());
 
             final WorkerContext<Void> context = MultiThreadWorker.getInstance().newContext();
 
@@ -69,7 +69,7 @@ public class BackupService {
 
                     plan.operation().execute(logger, originFile, destinationFile);
 
-                    progress.increment().ifPresent(System.out::println);
+                    progress.increment().ifPresent(logger::info);
                 });
             }
 

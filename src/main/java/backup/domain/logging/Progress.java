@@ -36,10 +36,10 @@ public class Progress {
         final String time = FORMATTER.format(SystemTime.now());
 
         if (total == 0) {
-            return "%s -%s- 0/0 (0.0%%)".formatted(time, name);
+            return "0/0 (0.0%)";
         }
 
-        return "%s -%s- %d/%d (%.1f%%)".formatted(time, name, current, total, percent(current));
+        return "%d/%d (%.1f%%)".formatted(current, total, percent(current));
     }
 
     private int region(long step) {
