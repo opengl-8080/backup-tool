@@ -6,6 +6,8 @@ import backup.domain.config.BackupContext;
 import backup.domain.file.LocalDirectory;
 import backup.domain.measure.Statistics;
 import backup.domain.measure.StopWatch;
+import backup.domain.thread.MultiThreadWorker;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -32,6 +34,11 @@ public class PerformanceTest {
     BackupContext context;
     BackupService sut;
 
+    @BeforeAll
+    static void beforeAll() {
+        MultiThreadWorker.getInstance().init(11);
+    }
+
     @BeforeEach
     void setUp() {
         context = new BackupContext(
@@ -50,7 +57,7 @@ public class PerformanceTest {
             System.out.println(i);
 
             PerformanceTestUtil.createDirectory(originDir, 3, 5, 3, 1024);
-            sut.backup();
+            sut.backup().join();
 
             sut.getCache().reset();
             Files.delete(context.destinationCache());
@@ -67,19 +74,19 @@ public class PerformanceTest {
 
             PerformanceTestUtil.createDirectory(originDir, 2, 4, 3, FILE_SIZE);
 
-            sut.backup();
+            sut.backup().join();
             firstStatistics.add(StopWatch.dumpStatistics());
             StopWatch.reset();
 
             modifyOriginDirectoryFiles();
 
-            sut.backup();
+            sut.backup().join();
             secondStatistics.add(StopWatch.dumpStatistics());
             StopWatch.reset();
 
             modifyOriginDirectoryFiles();
 
-            sut.backup();
+            sut.backup().join();
             thirdStatistics.add(StopWatch.dumpStatistics());
             StopWatch.reset();
 
