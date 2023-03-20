@@ -1,5 +1,8 @@
 package backup.domain.logging;
 
+import backup.domain.time.SystemTime;
+
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
 public class Progress {
@@ -27,12 +30,16 @@ public class Progress {
         }
     }
 
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("uuuu-MM-dd HH:mm:ss.SSS");
+
     public String currentProgress() {
+        final String time = FORMATTER.format(SystemTime.now());
+
         if (total == 0) {
-            return "-%s- 0/0 (0.0%%)".formatted(name);
+            return "%s -%s- 0/0 (0.0%%)".formatted(time, name);
         }
 
-        return "-%s- %d/%d (%.1f%%)".formatted(name, current, total, percent(current));
+        return "%s -%s- %d/%d (%.1f%%)".formatted(time, name, current, total, percent(current));
     }
 
     private int region(long step) {

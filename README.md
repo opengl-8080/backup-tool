@@ -39,6 +39,8 @@ $ java -jar backup-tool.jar --config=path/to/config.properites
 
 ## 更新内容
 
+- 1.2.0
+  - 進捗ログに時刻を出力するように修正
 - 1.1.0
   - 強制終了された場合もハッシュのキャッシュを出力するように修正
 - 1.0.1
