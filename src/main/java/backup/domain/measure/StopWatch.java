@@ -32,6 +32,14 @@ public class StopWatch {
     private final String tag;
 
     public static <T> T measure(String tag, Invoker<T> invoker) {
+        if (!ENABLE) {
+            try {
+                return invoker.invoke();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+
         final StopWatch stopWatch = new StopWatch(tag);
         try {
             return invoker.invoke();
@@ -43,6 +51,15 @@ public class StopWatch {
     }
 
     public static void measure(String tag, NoReturnInvoker invoker) {
+        if (!ENABLE) {
+            try {
+                invoker.invoke();
+                return;
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+
         measure(tag, () -> {
             invoker.invoke();
             return null;
