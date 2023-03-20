@@ -9,10 +9,17 @@ public class MultiThreadWorker {
         return INSTANCE;
     }
 
-    private final ForkJoinPool pool = new ForkJoinPool(Runtime.getRuntime().availableProcessors());
+    private ForkJoinPool pool;
 
-    public <T> WorkerContext<T> newContext() {
+    public synchronized  <T> WorkerContext<T> newContext() {
+        if (pool == null) {
+            pool = new ForkJoinPool(Runtime.getRuntime().availableProcessors());
+        }
         return new WorkerContext<>(pool);
+    }
+
+    public void init(int poolSize) {
+        pool = new ForkJoinPool(poolSize);
     }
 
     private MultiThreadWorker() {}
