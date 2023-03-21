@@ -183,6 +183,7 @@ class BackupServiceTest {
 
         SystemTime.setProvider(FixedSystemTimeProvider.of("2023-03-09 11:22:33.444"));
         testFiles.writeOriginFile("001.txt", "ONE");
+        testFiles.writeOriginFile("foo/bar/003.txt", "THREE");
         testFiles.writeOriginFile("fizz/004.txt", "four");
 
         sut.backup().join();
@@ -194,8 +195,9 @@ class BackupServiceTest {
         assertThat(testFiles.destinationFile("foo")).has(fileCount(1));
         assertThat(testFiles.destinationFile("foo/002.txt")).hasContent("two");
 
-        assertThat(testFiles.destinationFile("foo/bar")).has(fileCount(1));
-        assertThat(testFiles.destinationFile("foo/bar/003.txt")).hasContent("three");
+        assertThat(testFiles.destinationFile("foo/bar")).has(fileCount(2));
+        assertThat(testFiles.destinationFile("foo/bar/003.txt")).hasContent("THREE");
+        assertThat(testFiles.destinationFile("foo/bar/003#20230309-112233444.txt")).hasContent("three");
 
         assertThat(testFiles.destinationFile("fizz")).has(fileCount(1));
         assertThat(testFiles.destinationFile("fizz/004.txt")).hasContent("four");
@@ -206,6 +208,7 @@ class BackupServiceTest {
         SystemTime.setProvider(FixedSystemTimeProvider.of("2023-03-10 22:33:44.555"));
 
         testFiles.removeOriginFile("001.txt");
+        testFiles.writeOriginFile("foo/bar/003.txt", "Three");
         testFiles.writeOriginFile("foo/002.txt", "TWO");
 
         sut.backup().join();
@@ -218,8 +221,36 @@ class BackupServiceTest {
         assertThat(testFiles.destinationFile("foo/002.txt")).hasContent("TWO");
         assertThat(testFiles.destinationFile("foo/002#20230310-223344555.txt")).hasContent("two");
 
-        assertThat(testFiles.destinationFile("foo/bar")).has(fileCount(1));
+        assertThat(testFiles.destinationFile("foo/bar")).has(fileCount(3));
+        assertThat(testFiles.destinationFile("foo/bar/003.txt")).hasContent("Three");
+        assertThat(testFiles.destinationFile("foo/bar/003#20230310-223344555.txt")).hasContent("THREE");
+        assertThat(testFiles.destinationFile("foo/bar/003#20230309-112233444.txt")).hasContent("three");
+
+        assertThat(testFiles.destinationFile("fizz")).has(fileCount(1));
+        assertThat(testFiles.destinationFile("fizz/004.txt")).hasContent("four");
+
+        // fourth
+        sut.getCache().reset();
+
+        SystemTime.setProvider(FixedSystemTimeProvider.of("2023-03-11 12:13:14.555"));
+
+        testFiles.writeOriginFile("foo/bar/003.txt", "three");
+
+        sut.backup().join();
+
+        assertThat(testFiles.destinationDir()).has(fileCount(2));
+        assertThat(testFiles.destinationFile("001#20230310-223344555.txt")).hasContent("ONE");
+        assertThat(testFiles.destinationFile("001#20230309-112233444.txt")).hasContent("one");
+
+        assertThat(testFiles.destinationFile("foo")).has(fileCount(2));
+        assertThat(testFiles.destinationFile("foo/002.txt")).hasContent("TWO");
+        assertThat(testFiles.destinationFile("foo/002#20230310-223344555.txt")).hasContent("two");
+
+        assertThat(testFiles.destinationFile("foo/bar")).has(fileCount(4));
         assertThat(testFiles.destinationFile("foo/bar/003.txt")).hasContent("three");
+        assertThat(testFiles.destinationFile("foo/bar/003#20230311-121314555.txt")).hasContent("Three");
+        assertThat(testFiles.destinationFile("foo/bar/003#20230310-223344555.txt")).hasContent("THREE");
+        assertThat(testFiles.destinationFile("foo/bar/003#20230309-112233444.txt")).hasContent("three");
 
         assertThat(testFiles.destinationFile("fizz")).has(fileCount(1));
         assertThat(testFiles.destinationFile("fizz/004.txt")).hasContent("four");

@@ -20,6 +20,7 @@ public class LocalFile {
     private static final int INPUT_BUFFER_SIZE = 1024 * 1024;
     private static final Pattern BACKUP_FILE_NAME_PATTERN = Pattern.compile("^.*#\\d{8}-\\d{9}$");
     private final Path path;
+    private byte[] hash;
 
     public static LocalFile of(Path path) {
         return new LocalFile(path);
@@ -94,28 +95,37 @@ public class LocalFile {
 
     public byte[] hash() {
         return StopWatch.measure("hash", () -> {
-            final MessageDigest md;
-            try {
-                md = MessageDigest.getInstance("SHA-1");
-            } catch (NoSuchAlgorithmException e) {
-                throw new RuntimeException(e);
+            if (hash != null) {
+                return hash;
             }
 
-            try (
+            hash = calcHash();
+            return hash;
+        });
+    }
+
+    public byte[] calcHash() {
+        final MessageDigest md;
+        try {
+            md = MessageDigest.getInstance("SHA-1");
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+
+        try (
                 final BufferedInputStream in = new BufferedInputStream(Files.newInputStream(path, StandardOpenOption.READ), INPUT_BUFFER_SIZE);
                 final DigestOutputStream out = new DigestOutputStream(OutputStream.nullOutputStream(), md)
-            ) {
-                byte[] buffer = new byte[INPUT_BUFFER_SIZE];
-                int size;
-                while ((size = in.read(buffer)) != -1) {
-                    out.write(buffer, 0, size);
-                }
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+        ) {
+            byte[] buffer = new byte[INPUT_BUFFER_SIZE];
+            int size;
+            while ((size = in.read(buffer)) != -1) {
+                out.write(buffer, 0, size);
             }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
-            return md.digest();
-        });
+        return md.digest();
     }
 
     public Path path() {
