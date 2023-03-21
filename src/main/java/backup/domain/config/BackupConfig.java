@@ -49,18 +49,27 @@ public class BackupConfig {
             }
         }
 
+        final int poolSize = Integer.parseInt(props.getProperty("poolSize", "5"));
+
         final List<BackupContext> contexts = builders.values().stream().map(BackupContext.Builder::build).toList();
 
-        return new BackupConfig(contexts);
+        return new BackupConfig(poolSize, contexts);
     }
+
+    private final int poolSize;
 
     private final List<BackupContext> contexts;
 
-    private BackupConfig(List<BackupContext> contexts) {
+    private BackupConfig(int poolSize, List<BackupContext> contexts) {
+        this.poolSize = poolSize;
         this.contexts = contexts;
     }
 
     public List<BackupContext> contexts() {
         return contexts;
+    }
+
+    public int getPoolSize() {
+        return poolSize;
     }
 }

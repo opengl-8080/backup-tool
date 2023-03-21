@@ -13,7 +13,6 @@ import java.util.List;
 public class Main {
 
     public static void main(String[] args) {
-        int poolSize = 10;
         BackupConfig config = null;
         for (String arg : args) {
             if (arg.startsWith("--config=")) {
@@ -21,8 +20,6 @@ public class Main {
             } else if (arg.equals("-v") || arg.equals("--version")) {
                 System.out.println("1.2.1");
                 return;
-            } else if (arg.startsWith("--poolSize=")) {
-                poolSize = Integer.parseInt(arg.replaceAll("^--poolSize=", ""));
             }
         }
 
@@ -30,7 +27,7 @@ public class Main {
             throw new RuntimeException("コマンドライン引数で設定ファイルを指定してください > --config=path/to/backup.properties");
         }
 
-        MultiThreadWorker.getInstance().init(poolSize);
+        MultiThreadWorker.getInstance().init(config.getPoolSize());
 
         List<WorkerContext<Void>> backupWorkerContexts = new ArrayList<>();
 
