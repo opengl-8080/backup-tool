@@ -14,11 +14,6 @@ public class CachedLocalFile extends LocalFile {
 
     @Override
     public byte[] hash() {
-        return cache.getHash(path())
-                .orElseGet(() -> {
-                    final byte[] hash = super.hash();
-                    cache.put(path(), hash);
-                    return hash;
-                });
+        return cache.getHash(path()).orElseGet(super::hash);
     }
 }

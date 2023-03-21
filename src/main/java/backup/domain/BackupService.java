@@ -10,6 +10,7 @@ import backup.domain.measure.StopWatch;
 import backup.domain.plan.BackupPlan;
 import backup.domain.plan.BackupPlanner;
 import backup.domain.plan.BackupPlans;
+import backup.domain.plan.Operation;
 import backup.domain.thread.MultiThreadWorker;
 import backup.domain.thread.WorkerContext;
 
@@ -46,13 +47,14 @@ public class BackupService {
                 final BackupPlanner planner = new BackupPlanner(cache, originDirectory, destinationDirectory);
                 final BackupPlans plans = planner.plan();
 
-                cache.saveToFile();
-
                 logger.info("Start backup (add=%d, update=%d, remove=%d).".formatted(
                         plans.addCount(), plans.updateCount(), plans.removeCount()
                 ));
 
-                return doBackup(plans);
+                final WorkerContext<Void> context = doBackup(plans);
+                context.addFinishedHook(cache::saveToFile);
+                
+                return context;
             });
         } catch (Exception e) {
             logger.error("unknown error", e);
@@ -73,7 +75,14 @@ public class BackupService {
                     final LocalFile originFile = originDirectory.resolveFile(plan.path());
                     final LocalFile destinationFile = destinationDirectory.resolveFile(plan.path());
 
-                    plan.operation().execute(logger, originFile, destinationFile);
+                    final Operation operation = plan.operation();
+
+                    operation.execute(logger, originFile, destinationFile);
+
+                    switch (operation) {
+                        case ADD, UPDATE -> cache.put(destinationFile.path(), originFile.hash());
+                        case REMOVE -> cache.remove(destinationFile.path());
+                    }
 
                     progress.increment().ifPresent(logger::info);
                 });

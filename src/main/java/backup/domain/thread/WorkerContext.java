@@ -10,6 +10,7 @@ import java.util.concurrent.ForkJoinTask;
 public class WorkerContext<T> {
     private final ForkJoinPool pool;
     private final List<ForkJoinTask<T>> tasks = new ArrayList<>();
+    private final List<Runnable> finishHooks = new ArrayList<>();
 
     WorkerContext(ForkJoinPool pool) {
         this.pool = Objects.requireNonNull(pool);
@@ -35,7 +36,12 @@ public class WorkerContext<T> {
                 .toList();
     }
 
+    public void addFinishedHook(Runnable hook) {
+        finishHooks.add(hook);
+    }
+
     public void join() {
         tasks.forEach(ForkJoinTask::join);
+        finishHooks.forEach(Runnable::run);
     }
 }

@@ -19,7 +19,7 @@ public class Main {
             if (arg.startsWith("--config=")) {
                 config = BackupConfig.load(Path.of(arg.replaceAll("^--config=", "")));
             } else if (arg.equals("-v") || arg.equals("--version")) {
-                System.out.println("1.2.0");
+                System.out.println("1.2.1");
                 return;
             } else if (arg.startsWith("--poolSize=")) {
                 poolSize = Integer.parseInt(arg.replaceAll("^--poolSize=", ""));

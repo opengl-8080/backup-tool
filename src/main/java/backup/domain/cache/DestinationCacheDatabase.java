@@ -35,6 +35,10 @@ public class DestinationCacheDatabase {
         caches.put(path, hash);
     }
 
+    public void remove(Path path) {
+        caches.remove(path);
+    }
+
     public Optional<byte[]> getHash(Path path) {
         return Optional.ofNullable(caches.get(path));
     }

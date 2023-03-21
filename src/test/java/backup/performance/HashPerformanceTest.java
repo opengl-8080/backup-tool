@@ -42,7 +42,7 @@ public class HashPerformanceTest {
 
         System.out.println("warm up...");
         for (int i=0; i<10; i++) {
-            localFile.hash();
+            localFile.calcHash();
         }
 
         start = System.currentTimeMillis();
@@ -74,7 +74,7 @@ public class HashPerformanceTest {
         for (int i=0; i<loopCount; i++) {
             context.submit(() -> {
                 final long begin = System.currentTimeMillis();
-                localFile.hash();
+                localFile.calcHash();
                 final long time = System.currentTimeMillis() - begin;
                 times.add(time);
             });
@@ -88,7 +88,7 @@ public class HashPerformanceTest {
         System.out.println("measuring...");
         for (int i=0; i<loopCount; i++) {
             final long begin = System.currentTimeMillis();
-            localFile.hash();
+            localFile.calcHash();
             final long time = System.currentTimeMillis() - begin;
             times.add(time);
         }
