@@ -7,6 +7,7 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -59,9 +60,9 @@ public class DestinationCacheDatabase {
                 final InputStream in = new BufferedInputStream(Files.newInputStream(persistenceFile, StandardOpenOption.READ), BUFFER_SIZE);
             ) {
                 int pathSize;
-                while ((pathSize = in.read()) != -1) {
+                while ((pathSize = readNextInt(in)) != -1) {
                     final Path path = Path.of(new String(readNextBlock(in, pathSize), StandardCharsets.UTF_8));
-                    final byte[] hash = readNextBlock(in, in.read());
+                    final byte[] hash = readNextBlock(in, readNextInt(in));
 
                     put(path, hash);
                 }
@@ -79,15 +80,30 @@ public class DestinationCacheDatabase {
                 for (Map.Entry<Path, byte[]> entry : caches.entrySet()) {
                     final Path path = entry.getKey();
                     final byte[] pathBytes = path.toString().getBytes(StandardCharsets.UTF_8);
-                    out.write(pathBytes.length);
+                    out.write(intToByteArray(pathBytes.length));
                     out.write(pathBytes);
 
                     final byte[] hash = entry.getValue();
-                    out.write(hash.length);
+                    out.write(intToByteArray(hash.length));
                     out.write(hash);
                 }
             }
         });
+    }
+
+    private byte[] intToByteArray(int i) {
+        final ByteBuffer buffer = ByteBuffer.allocate(4);
+        buffer.putInt(i);
+        return buffer.array();
+    }
+
+    private int readNextInt(InputStream in) throws IOException {
+        byte[] bytes = new byte[4];
+        if (in.read(bytes) != 4) {
+            return -1;
+        }
+        final ByteBuffer buffer = ByteBuffer.wrap(bytes);
+        return buffer.getInt();
     }
 
     private byte[] readNextBlock(InputStream in, int size) throws IOException {
