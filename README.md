@@ -39,6 +39,8 @@ $ java -jar backup-tool.jar --config=path/to/config.properites
 
 ## 更新内容
 
+- 1.3.0
+  - 最終更新日時が一致していたら変更なしと判定するように修正
 - 1.2.2
   - 255byteを超えるパスをキャッシュに正しく保存できない不具合を修正
 - 1.2.1

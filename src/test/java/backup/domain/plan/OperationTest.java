@@ -73,4 +73,14 @@ class OperationTest {
         assertThat(destinationFile.path()).hasContent("ONE");
         assertThat(testFiles.destinationFile("001#20230310-112233444")).hasContent("one");
     }
+
+    @Test
+    void コピーされたファイルの最終更新日時はコピー元と同じであること() {
+        final LocalFile originFile = new LocalFile(testFiles.writeOriginFile("001", "one", 10));
+        final LocalFile destinationFile = new LocalFile(testFiles.destinationFile("001"));
+
+        Operation.ADD.execute(Logger.nullLogger(), originFile, destinationFile);
+
+        assertThat(testFiles.destinationFile("001").toFile().lastModified()).isEqualTo(10);
+    }
 }

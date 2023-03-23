@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.security.DigestOutputStream;
 import java.security.MessageDigest;
@@ -47,7 +48,7 @@ public class LocalFile {
     public void copyTo(LocalFile destination) {
         StopWatch.measure("copyTo", () -> {
             destination.parent().createDirectories();
-            Files.copy(path, destination.path);
+            Files.copy(path, destination.path, StandardCopyOption.COPY_ATTRIBUTES);
         });
     }
 
@@ -88,6 +89,10 @@ public class LocalFile {
 
         if (size() != other.size()) {
             return false;
+        }
+
+        if (path.toFile().lastModified() == other.path.toFile().lastModified()) {
+            return true;
         }
 
         return Arrays.equals(hash(), other.hash());

@@ -47,20 +47,35 @@ public class TestFiles implements BeforeEachCallback {
 
     public Path writeOriginFile(String path, String content) {
         final Path file = originFile(path);
-        writeFile(file, content);
+        writeFile(file, content, null);
+        return file;
+    }
+
+    public Path writeOriginFile(String path, String content, long lastModified) {
+        final Path file = originFile(path);
+        writeFile(file, content, lastModified);
         return file;
     }
 
     public Path writeDestinationFile(String path, String content) {
         final Path file = destinationFile(path);
-        writeFile(file, content);
+        writeFile(file, content, null);
         return file;
     }
 
-    private void writeFile(Path file, String content) {
+    public Path writeDestinationFile(String path, String content, long lastModified) {
+        final Path file = destinationFile(path);
+        writeFile(file, content, lastModified);
+        return file;
+    }
+
+    private void writeFile(Path file, String content, Long lastModified) {
         mkdirs(file.getParent());
         try {
             Files.writeString(file, content, StandardCharsets.UTF_8);
+            if (lastModified != null) {
+                file.toFile().setLastModified(lastModified);
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

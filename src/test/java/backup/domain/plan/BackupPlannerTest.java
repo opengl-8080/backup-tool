@@ -109,6 +109,21 @@ class BackupPlannerTest {
         );
     }
 
+    @Test
+    void 更新日時が変わっていない場合は変更されていないと判定されること() {
+        testFiles.writeOriginFile("one.txt", "111", 1);
+        testFiles.writeOriginFile("foo/two.txt", "222", 2);
+
+        testFiles.writeDestinationFile("one.txt", "xxx", 1);
+        testFiles.writeDestinationFile("foo/two.txt", "yyy", 3);
+
+        BackupPlans plans = sut.plan();
+
+        assertThat(plans).containsExactlyInAnyOrder(
+            backupPlan(Operation.UPDATE, "foo/two.txt")
+        );
+    }
+
     private BackupPlan backupPlan(Operation operation, String path) {
         return new BackupPlan(operation, Path.of(path));
     }
