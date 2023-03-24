@@ -2,26 +2,17 @@ package backup.domain.file;
 
 import backup.domain.measure.StopWatch;
 
-import java.io.BufferedInputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.nio.file.StandardOpenOption;
-import java.security.DigestOutputStream;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
 public class LocalFile {
-    private static final int INPUT_BUFFER_SIZE = 1024 * 1024;
     private static final Pattern BACKUP_FILE_NAME_PATTERN = Pattern.compile("^.*#\\d{8}-\\d{9}$");
     private final Path path;
-    private byte[] hash;
 
     public static LocalFile of(Path path) {
         return new LocalFile(path);
@@ -95,42 +86,11 @@ public class LocalFile {
             return true;
         }
 
-        return Arrays.equals(hash(), other.hash());
-    }
-
-    public byte[] hash() {
-        return StopWatch.measure("hash", () -> {
-            if (hash != null) {
-                return hash;
-            }
-
-            hash = calcHash();
-            return hash;
-        });
-    }
-
-    public byte[] calcHash() {
-        final MessageDigest md;
         try {
-            md = MessageDigest.getInstance("SHA-1");
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
-
-        try (
-                final BufferedInputStream in = new BufferedInputStream(Files.newInputStream(path, StandardOpenOption.READ), INPUT_BUFFER_SIZE);
-                final DigestOutputStream out = new DigestOutputStream(OutputStream.nullOutputStream(), md)
-        ) {
-            byte[] buffer = new byte[INPUT_BUFFER_SIZE];
-            int size;
-            while ((size = in.read(buffer)) != -1) {
-                out.write(buffer, 0, size);
-            }
+            return Files.mismatch(path, other.path) == -1;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
-        return md.digest();
     }
 
     public Path path() {

@@ -1,7 +1,5 @@
 package backup.domain.plan;
 
-import backup.domain.cache.DestinationCacheDatabase;
-import backup.domain.file.CachedLocalFile;
 import backup.domain.file.LocalDirectory;
 import backup.domain.file.LocalFile;
 import backup.domain.measure.StopWatch;
@@ -13,14 +11,10 @@ import java.util.List;
 import java.util.Objects;
 
 public class BackupPlanner {
-    private final DestinationCacheDatabase cache;
     private final LocalDirectory originDirectory;
     private final LocalDirectory destinationDirectory;
 
-    public BackupPlanner(DestinationCacheDatabase cache,
-                         LocalDirectory originDirectory,
-                         LocalDirectory destinationDirectory) {
-        this.cache = Objects.requireNonNull(cache);
+    public BackupPlanner(LocalDirectory originDirectory, LocalDirectory destinationDirectory) {
         this.originDirectory = Objects.requireNonNull(originDirectory);
         this.destinationDirectory = Objects.requireNonNull(destinationDirectory);
     }
@@ -51,7 +45,7 @@ public class BackupPlanner {
 
                     if (!destinationFile.exists()) {
                         return new BackupPlan(Operation.ADD, relativePath);
-                    } else if (!originFile.contentEquals(new CachedLocalFile(cache, destinationFile))) {
+                    } else if (!originFile.contentEquals(destinationFile)) {
                         return new BackupPlan(Operation.UPDATE, relativePath);
                     } else {
                         return null;

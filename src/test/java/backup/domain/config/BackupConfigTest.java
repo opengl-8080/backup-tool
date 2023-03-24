@@ -32,14 +32,12 @@ class BackupConfigTest {
                 assertThat(context.name()).isEqualTo("hoge");
                 assertThat(context.originDirectory().path()).isEqualTo(Path.of("hoge/origin"));
                 assertThat(context.destinationDirectory().path()).isEqualTo(Path.of("hoge/destination"));
-                assertThat(context.destinationCache()).isEqualTo(Path.of("foo/bar/cache/destination-cache-hoge.dat"));
                 assertThat(context.logFile()).isEqualTo(Path.of("foo/bar/log/backup-hoge.log"));
             },
             context -> {
                 assertThat(context.name()).isEqualTo("fuga");
                 assertThat(context.originDirectory().path()).isEqualTo(Path.of("fuga/origin"));
                 assertThat(context.destinationDirectory().path()).isEqualTo(Path.of("fuga/destination"));
-                assertThat(context.destinationCache()).isEqualTo(Path.of("foo/bar/cache/destination-cache-fuga.dat"));
                 assertThat(context.logFile()).isEqualTo(Path.of("foo/bar/log/backup-fuga.log"));
             }
         );

@@ -28,7 +28,6 @@ public class PerformanceTest {
     final TestFiles testFiles = new TestFiles();
 
     final Path originDir = testFiles.originDir();
-    final Path destinationDir = testFiles.destinationDir();
     @TempDir
     Path tempDir;
     BackupContext context;
@@ -59,8 +58,6 @@ public class PerformanceTest {
             PerformanceTestUtil.createDirectory(originDir, 3, 5, 3, 1024);
             sut.backup().join();
 
-            sut.getCache().reset();
-            Files.delete(context.destinationCache());
             testFiles.reset();
         }
 
@@ -90,9 +87,7 @@ public class PerformanceTest {
             thirdStatistics.add(StopWatch.dumpStatistics());
             StopWatch.reset();
 
-            sut.getCache().reset();
             testFiles.reset();
-            Files.delete(context.destinationCache());
         }
         firstStatistics.print("first");
         secondStatistics.print("second");

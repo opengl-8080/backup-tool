@@ -179,8 +179,6 @@ class BackupServiceTest {
         assertThat(testFiles.destinationFile("foo/bar/003.txt")).hasContent("three");
 
         // second
-        sut.getCache().reset();
-
         SystemTime.setProvider(FixedSystemTimeProvider.of("2023-03-09 11:22:33.444"));
         testFiles.writeOriginFile("001.txt", "ONE");
         testFiles.writeOriginFile("foo/bar/003.txt", "THREE");
@@ -203,8 +201,6 @@ class BackupServiceTest {
         assertThat(testFiles.destinationFile("fizz/004.txt")).hasContent("four");
 
         // third
-        sut.getCache().reset();
-
         SystemTime.setProvider(FixedSystemTimeProvider.of("2023-03-10 22:33:44.555"));
 
         testFiles.removeOriginFile("001.txt");
@@ -230,8 +226,6 @@ class BackupServiceTest {
         assertThat(testFiles.destinationFile("fizz/004.txt")).hasContent("four");
 
         // fourth
-        sut.getCache().reset();
-
         SystemTime.setProvider(FixedSystemTimeProvider.of("2023-03-11 12:13:14.555"));
 
         testFiles.writeOriginFile("foo/bar/003.txt", "three");

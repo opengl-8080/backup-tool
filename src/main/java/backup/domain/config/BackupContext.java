@@ -30,10 +30,6 @@ public class BackupContext {
         return destinationDirectory;
     }
 
-    public Path destinationCache() {
-        return home.resolve("cache/destination-cache-" + name + ".dat");
-    }
-
     public Path logFile() {
         return home.resolve("log/backup-" + name + ".log");
     }
