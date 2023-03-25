@@ -39,6 +39,8 @@ $ java -jar backup-tool.jar --config=path/to/config.properites
 
 ## 更新内容
 
+- 1.5.0
+  - シャットダウン機能追加
 - 1.4.0
   - ファイルの同一チェックでハッシュを使わないように修正
 - 1.3.0

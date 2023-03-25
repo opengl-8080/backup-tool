@@ -10,6 +10,7 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -50,18 +51,23 @@ public class BackupConfig {
         }
 
         final int poolSize = Integer.parseInt(props.getProperty("poolSize", "5"));
+        final Integer shutdownMinutes = props.containsKey("shutdownMinutes")
+                ? Integer.parseInt(props.getProperty("shutdownMinutes")) : null;
 
         final List<BackupContext> contexts = builders.values().stream().map(BackupContext.Builder::build).toList();
 
-        return new BackupConfig(poolSize, contexts);
+        return new BackupConfig(poolSize, shutdownMinutes, contexts);
     }
 
     private final int poolSize;
 
     private final List<BackupContext> contexts;
 
-    private BackupConfig(int poolSize, List<BackupContext> contexts) {
+    private final Integer shutdownMinutes;
+
+    private BackupConfig(int poolSize, Integer shutdownMinutes, List<BackupContext> contexts) {
         this.poolSize = poolSize;
+        this.shutdownMinutes = shutdownMinutes;
         this.contexts = contexts;
     }
 
@@ -71,5 +77,9 @@ public class BackupConfig {
 
     public int getPoolSize() {
         return poolSize;
+    }
+
+    public Optional<Integer> getShutdownMinutes() {
+        return Optional.ofNullable(shutdownMinutes);
     }
 }
